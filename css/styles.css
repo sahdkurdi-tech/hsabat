@@ -246,10 +246,19 @@ select option {
     box-shadow: 0 2px 5px rgba(52,152,219,0.2); 
 }
 
+/* دیزاینی کارتی وەسڵەکان لەناو مۆداڵی تایبەتی */
+.receipt-card { border: 1px solid #dcdde1; border-radius: 8px; margin-bottom: 20px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.receipt-header { background: #f8f9fa; padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; border-right: 4px solid #3498db; }
+.receipt-body { padding: 15px 20px; }
+.expense-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 14px; }
+.expense-row:last-child { border-bottom: none; }
+
+
 /* ========================================= */
 /* گونجاندن بۆ مۆبایل و ئایپاد (Responsive) */
 /* ========================================= */
-@media (max-width: 768px) {
+/* گۆڕانکارییەکە لێرەدایە: ژمارەکە گۆڕدرا بۆ 1024px بۆ ئەوەی ئایپادیش بگرێتەوە */
+@media (max-width: 1024px) {
     .desktop-menu { display: none; }
     .mobile-menu-btn { display: block; }
     
@@ -257,10 +266,3 @@ select option {
     
     input, select, button { font-size: 14px; padding: 10px; }
 }
-
-/* دیزاینی کارتی وەسڵەکان لەناو مۆداڵی تایبەتی */
-.receipt-card { border: 1px solid #dcdde1; border-radius: 8px; margin-bottom: 20px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-.receipt-header { background: #f8f9fa; padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; border-right: 4px solid #3498db; }
-.receipt-body { padding: 15px 20px; }
-.expense-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 14px; }
-.expense-row:last-child { border-bottom: none; }
