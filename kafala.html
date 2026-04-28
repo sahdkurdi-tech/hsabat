@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بەڕێوەبردنی کەفالەت</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* دیزاینی مۆداڵەکان */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
+        .modal-content { background-color: #f9f9f9; margin: 10% auto; padding: 25px; border-radius: 8px; width: 90%; max-width: 400px; text-align: center; direction: rtl; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="navbar-brand">MROVDOSTAN</div>
+        
+        <div class="desktop-menu">
+            <a href="donors.html">بەخشەران</a>
+            <a href="advances.html">سلفە و پاکتاوکردن</a>
+            <a href="projects.html">پڕۆژەکان</a>
+            <a href="kafala.html" class="active">کەفالەت</a>
+            <a href="expenses.html">سەرفی گشتی</a>
+            <a href="reports.html">ڕاپۆرتەکان</a>
+        </div>
+        
+        <button class="mobile-menu-btn" onclick="openMenu()">☰</button>
+    </div>
+
+    <div id="slideMenu" class="slide-menu">
+        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+        <a href="donors.html">بەخشەران</a>
+        <a href="advances.html">سلفە و پاکتاوکردن</a>
+        <a href="projects.html">پڕۆژەکان</a>
+        <a href="kafala.html">کەفالەت</a>
+        <a href="expenses.html">سەرفی گشتی</a>
+        <a href="reports.html">ڕاپۆرتەکان</a>
+    </div>
+    
+    <div id="overlay" class="overlay"></div>
+
+    <div class="container">
+        <h2>تۆمارکردنی جزدانی کەفالەتی نوێ (پێشوەختە)</h2>
+        <form id="kafalaForm">
+            <label>ناوی بەخشەر (کەفیل):</label>
+            <select id="sponsorName" required onchange="loadDonorReceipts()">
+                <option value="">چاوەڕوان بە...</option>
+            </select>
+
+            <label>کام وەسڵەی بەکاردەهێنیت؟:</label>
+            <select id="sponsorReceipt" required onchange="checkCurrencyMatch()">
+                <option value="">تکایە سەرەتا بەخشەر هەڵبژێرە...</option>
+            </select>
+
+            <label>ناوی سوودمەند (هەتیو / نەخۆش):</label>
+            <input type="text" id="beneficiaryName" required>
+
+            <label>کۆی گشتی پارەی پێدراو (بۆ تەواوی ماوەکە):</label>
+            <input type="number" id="totalAmount" required placeholder="نموونە: ١٢٠٠">
+
+            <label>بڕی بڕینی مانگانە (چەندی لێ خەرج بکرێت مانگانە؟):</label>
+            <input type="number" id="monthlyDeduction" required placeholder="نموونە: ١٠٠">
+
+            <label>جۆری دراوی کەفالەتەکە:</label>
+            <select id="currency" onchange="checkCurrencyMatch()">
+                <option value="USD">دۆلار ($)</option>
+                <option value="IQD">دینار (IQD)</option>
+            </select>
+
+            <div id="exchangeRateDiv" style="display: none; background: #fff3cd; padding: 15px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #ffe69c;">
+                <label id="exchangeRateLabel" style="color: #d35400;">نرخی گۆڕینەوە (١٠٠ دۆلار = چەند دینار؟):</label>
+                <input type="number" id="exchangeRate" placeholder="نموونە: ١٥٢٠٠٠" style="margin-bottom: 0;">
+                <small style="color: #856404; display: block; margin-top: 5px;">تێبینی: چونکە دراوی وەسڵەکە و دراوی کەفالەتەکە جیاوازن، ئەمە بەکاردێت بۆ بڕینی دروست لە وەسڵەکە.</small>
+            </div>
+
+            <button type="submit" class="action-btn">کردنەوەی جزدانی کەفالەت</button>
+        </form>
+
+        <hr>
+
+        <h2>داشبۆردی کەفالەتەکان و بیرخەرەوەی نوێکردنەوە</h2>
+        
+        <div class="table-responsive">
+            <table id="kafalaTable">
+                <thead>
+                    <tr>
+                        <th>ناوی کەفیل</th>
+                        <th>ناوی سوودمەند</th>
+                        <th>پارەی ماوە (جزدان)</th>
+                        <th>بڕینی مانگانە</th>
+                        <th>مانگی ماوە بۆ تەواوبوون</th>
+                        <th>بڕیاری مانگانە</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="customAlertModal" class="modal">
+        <div class="modal-content" style="border-top: 5px solid #27ae60;" id="alertModalBorder">
+            <div id="alertIcon" style="font-size: 50px; margin-bottom: 10px;">✅</div>
+            <h3 id="alertTitle" style="margin-top: 0;">سەرکەوتوو بوو</h3>
+            <p id="alertMessage" style="color: #666; font-size: 16px; margin-bottom: 20px; white-space: pre-wrap;"></p>
+            <button onclick="closeModal('customAlertModal')" class="action-btn" style="background-color: #3498db; width: 100%;">باشە، تێگەیشتم</button>
+        </div>
+    </div>
+
+    <div id="customConfirmModal" class="modal">
+        <div class="modal-content" style="border-top: 5px solid #e74c3c;">
+            <div style="font-size: 50px; margin-bottom: 10px;">⚠️</div>
+            <h3 style="color: #e74c3c; margin-top: 0;">ئایا دڵنیایت؟</h3>
+            <p id="confirmMessage" style="color: #666; font-size: 16px; margin-bottom: 20px; white-space: pre-wrap;"></p>
+            <div style="display: flex; gap: 10px;">
+                <button id="confirmYesBtn" class="action-btn" style="flex: 1; background-color: #e74c3c;">بەڵێ، دڵنیام</button>
+                <button onclick="closeModal('customConfirmModal')" class="action-btn" style="flex: 1; background-color: #95a5a6;">نەخێر</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/menu.js"></script>
+    <script type="module" src="js/kafala.js"></script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سلفە و پاکتاوکردن</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
+        .modal-content { background-color: #f9f9f9; margin: 5% auto; padding: 25px; border-radius: 8px; width: 95%; max-width: 1000px; max-height: 90vh; overflow-y: auto; direction: rtl; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .close-modal { float: left; font-size: 32px; cursor: pointer; color: #555; }
+        .close-modal:hover { color: #e74c3c; }
+        .history-btn { padding: 15px; font-size: 18px; font-weight: bold; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; color: white; width: 100%; transition: 0.3s; }
+        
+        .totals-container { display: flex; gap: 20px; margin-bottom: 30px; }
+        .total-card { flex: 1; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: center; border-top: 5px solid #2980b9; }
+        .total-card h3 { margin: 10px 0 0 0; font-size: 24px; direction: ltr; line-height: 1.5; }
+
+        .flex-row { display: flex; gap: 8px; align-items: center; margin-bottom: 15px; width: 100%; box-sizing: border-box; }
+        .icon-btn { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: bold; font-size: 15px; flex: 1; font-family: inherit; }
+        .btn-add { background-color: #27ae60; }
+        .btn-delete { background-color: #e74c3c; }
+        .btn-add:hover { background-color: #219653; }
+        .btn-delete:hover { background-color: #c0392b; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="navbar-brand">MROVDOSTAN</div>
+        <div class="desktop-menu">
+            <a href="donors.html">بەخشەران</a>
+            <a href="advances.html" class="active">سلفە و پاکتاوکردن</a>
+            <a href="projects.html">پڕۆژەکان</a>
+            <a href="kafala.html">کەفالەت</a>
+            <a href="expenses.html">سەرفی گشتی</a>
+            <a href="reports.html">ڕاپۆرتەکان</a>
+        </div>
+        <button class="mobile-menu-btn" onclick="openMenu()">☰</button>
+    </div>
+
+    <div id="slideMenu" class="slide-menu">
+        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+        <a href="donors.html">بەخشەران</a>
+        <a href="advances.html">سلفە و پاکتاوکردن</a>
+        <a href="projects.html">پڕۆژەکان</a>
+        <a href="kafala.html">کەفالەت</a>
+        <a href="expenses.html">سەرفی گشتی</a>
+        <a href="reports.html">ڕاپۆرتەکان</a>
+    </div>
+    
+    <div id="overlay" class="overlay"></div>
+
+    <div class="container">
+        
+        <h2>پێدانی سلفەی نوێ</h2>
+        <form id="advanceForm">
+            <label>ناوی لیژنە / کەسی بەرپرس:</label>
+            <div id="committeeContainer" class="radio-group"></div>
+            <input type="hidden" id="committeeValue" required>
+            <input type="hidden" id="committeeTextValue">
+            
+            <div class="flex-row" style="margin-bottom: 25px;">
+                <button type="button" class="icon-btn btn-add" onclick="addCommittee()">+ زیادکردنی ناو</button>
+                <button type="button" class="icon-btn btn-delete" onclick="deleteCommittee()">🗑️ سڕینەوەی دیاریکراو</button>
+            </div>
+
+            <label>لەکێی وەرگرتووە؟ (سەرچاوەی پارەکە):</label>
+            <input type="text" id="givenBy" required placeholder="نموونە: لە سندووقی گشتی، یان لە فڵان کەس...">
+
+            <label>بڕی پێشینە (سلفە):</label>
+            <input type="number" id="advanceAmount" required>
+
+            <label>جۆری دراو:</label>
+            <select id="advanceCurrency">
+                <option value="USD">دۆلار ($)</option>
+                <option value="IQD">دینار (IQD)</option>
+            </select>
+
+            <button type="submit" class="action-btn">تۆمارکردنی سلفە</button>
+        </form>
+
+        <hr>
+
+        <h2>پاکتاوکردنی سلفە و گەڕاندنەوەی وەسڵ</h2>
+        <form id="settlementForm">
+            <label>هەڵبژاردنی سلفەی کراوە:</label>
+            <select id="activeAdvances" required onchange="checkCurrencyMatch()">
+                <option value="">چاوەڕوان بە...</option>
+            </select>
+
+            <label>هۆکاری خەرجی (نموونە: کڕینی چیمەنتۆ):</label>
+            <input type="text" id="receiptDescription" required placeholder="وەسڵەکە بۆچی بووە؟">
+
+            <label>بڕی ناو وەسڵەکە (تێچوو):</label>
+            <input type="number" id="receiptAmount" required>
+
+            <label>دراوی ناو وەسڵەکە:</label>
+            <select id="receiptCurrency" onchange="checkCurrencyMatch()">
+                <option value="IQD">دینار (IQD)</option>
+                <option value="USD">دۆلار ($)</option>
+            </select>
+
+            <div id="exchangeRateDiv" style="display:none; background: #fff3cd; padding: 10px; border-radius: 6px; margin-bottom: 20px;">
+                <label>نرخی سەرفی ئەمڕۆ (بۆ ١٠٠ دۆلار بە دینار):</label>
+                <input type="number" id="exchangeRate" placeholder="نموونە: ١٥٠٠٠٠" style="margin-bottom: 0;">
+                <small style="color: #856404; display: block; margin-top: 5px;">تێبینی: چونکە دراوی وەسڵەکە و دراوی سلفەکە جیاوازن، ئەمە بەکاردێت بۆ بڕینی دروست.</small>
+            </div>
+
+            <label>وێنەی وەسڵەکە (ئارەزوومەندانە - بۆ ئەرشیف):</label>
+            <input type="file" id="receiptImage" accept="image/*">
+
+            <button type="submit" class="action-btn" style="background-color: #27ae60;">پاکتاوکردنی ئەم وەسڵە</button>
+        </form>
+
+        <div style="display: flex; gap: 15px; margin-top: 40px;">
+            <div style="flex: 1;">
+                <button type="button" class="history-btn" style="background: #8e44ad;" onclick="openSpecificHistory()">مێژووی تایبەتی کەسەکان</button>
+                <p style="text-align:center; font-size:12px; color:#666; margin-top:5px;">بۆ بینینی هەموو حیساباتەکانی یەک کەس</p>
+            </div>
+            <div style="flex: 1;">
+                <button type="button" class="history-btn" style="background: #2c3e50;" onclick="openGeneralHistory()">مێژووی گشتی سلفەکان</button>
+                <p style="text-align:center; font-size:12px; color:#666; margin-top:5px;">بۆ بینینی خشتەی هەموو سلفە و پاکتاوەکان</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="addCommitteeModal" class="modal" style="z-index: 3000;">
+        <div class="modal-content" style="max-width: 400px; text-align: center; margin: 10% auto; border-top: 5px solid #2980b9;">
+            <h3 style="color: #2980b9; margin-top: 0;">زیادکردنی ناوێکی نوێ</h3>
+            <p style="color: #666; font-size: 15px; margin-bottom: 20px;">ناوی لیژنەکە یان کەسەکە بنووسە:</p>
+            <input type="text" id="newCommitteeInput" placeholder="نموونە: کاک ئەحمەد..." style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 16px;">
+            <div style="display: flex; gap: 10px;">
+                <button onclick="submitNewCommittee()" class="action-btn" style="flex: 1; background-color: #27ae60;">پاشەکەوتکردن</button>
+                <button onclick="closeModal('addCommitteeModal')" class="action-btn" style="flex: 1; background-color: #95a5a6;">پاشگەزبوونەوە</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="specificHistoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('specificHistoryModal')">&times;</span>
+            <h2 style="border-bottom: 2px solid #8e44ad; padding-bottom: 10px; color: #8e44ad;">وردەکاری و حیساباتی کەسەکان</h2>
+            
+            <label>ناوی کەسەکە / لیژنەکە هەڵبژێرە:</label>
+            <select id="specificAdvanceSelect" onchange="loadSpecificAdvanceData()" style="width: 100%; padding: 10px; margin-bottom: 20px; font-family: inherit;">
+                <option value="">چاوەڕوان بە...</option>
+            </select>
+
+            <div class="totals-container" id="specificTotals" style="display: none;">
+                <div class="total-card" style="border-color: #2980b9;">
+                    <p style="margin:0; color:#555; font-weight:bold;">بڕی وەرگیراو (کۆی گشتی)</p>
+                    <h3 id="specTotalAdv" style="color: #2980b9;">0</h3>
+                </div>
+                <div class="total-card" style="border-color: #27ae60;">
+                    <p style="margin:0; color:#555; font-weight:bold;">کۆی پاکتاوکراو (وەسڵەکان)</p>
+                    <h3 id="specTotalSettled" style="color: #27ae60;">0</h3>
+                </div>
+                <div class="total-card" style="border-color: #e74c3c;">
+                    <p style="margin:0; color:#555; font-weight:bold;">بڕی ماوەی لایە (قەرز)</p>
+                    <h3 id="specRemainingAdv" style="color: #e74c3c;">0</h3>
+                </div>
+            </div>
+
+            <h3 style="color: #2c3e50; margin-top: 30px;">لیستی ئەو وەسڵانەی ئەم کەسە گەڕاندوویەتیەوە:</h3>
+            <div class="table-responsive">
+                <table id="specSettlementsTable">
+                    <thead><tr><th>هۆکاری خەرجی</th><th>بڕی وەسڵ</th><th>بڕی بڕدراو لە سلفە</th><th>بەروار و کات</th><th>وێنە</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="generalHistoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('generalHistoryModal')">&times;</span>
+            <h2 style="border-bottom: 2px solid #2c3e50; padding-bottom: 10px;">مێژووی گشتی سلفەکان</h2>
+            
+            <h3 style="color: #2980b9;">داشبۆردی چاودێری سلفەکان (کێ پارەی لایە؟)</h3>
+            <div class="table-responsive" style="margin-bottom: 30px;">
+                <table id="advancesTable">
+                    <thead>
+                        <tr>
+                            <th>ناوی لیژنە / کەس</th>
+                            <th>لەکێی وەرگرتووە؟</th>
+                            <th>بڕی پێدراو</th>
+                            <th>بڕی ماوە (قەرز)</th>
+                            <th>دۆخی سلفە</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <h3 style="color: #27ae60;">مێژووی پاکتاوکردن و وەسڵە گەڕاوەکان (ئەرشیفی گشتی)</h3>
+            <div class="table-responsive">
+                <table id="settlementHistoryTable">
+                    <thead>
+                        <tr>
+                            <th>ناوی لیژنە</th>
+                            <th>هۆکاری خەرجی</th> 
+                            <th>بڕی وەسڵ</th>
+                            <th>بڕی کەمکراوە</th>
+                            <th>بەروار</th>
+                            <th>وێنە</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="customAlertModal" class="modal" style="z-index: 3000;">
+        <div class="modal-content" style="max-width: 400px; text-align: center; margin: 15% auto; border-top: 5px solid #27ae60;" id="alertModalBorder">
+            <div id="alertIcon" style="font-size: 50px; margin-bottom: 10px;">✅</div>
+            <h3 id="alertTitle" style="margin-top: 0;">سەرکەوتوو بوو</h3>
+            <p id="alertMessage" style="color: #666; font-size: 16px; margin-bottom: 20px;"></p>
+            <button onclick="closeModal('customAlertModal')" class="action-btn" style="background-color: #3498db;">باشە، تێگەیشتم</button>
+        </div>
+    </div>
+
+    <div id="customConfirmModal" class="modal" style="z-index: 3000;">
+        <div class="modal-content" style="max-width: 400px; text-align: center; margin: 15% auto; border-top: 5px solid #e74c3c;">
+            <div style="font-size: 50px; margin-bottom: 10px;">⚠️</div>
+            <h3 style="color: #e74c3c; margin-top: 0;">ئایا دڵنیایت؟</h3>
+            <p id="confirmMessage" style="color: #666; font-size: 16px; margin-bottom: 20px; white-space: pre-wrap;"></p>
+            <div style="display: flex; gap: 10px;">
+                <button id="confirmYesBtn" class="action-btn" style="flex: 1; background-color: #e74c3c;">بەڵێ، دڵنیام</button>
+                <button onclick="closeModal('customConfirmModal')" class="action-btn" style="flex: 1; background-color: #95a5a6;">نەخێر</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/menu.js"></script>
+    <script type="module" src="js/advances.js"></script>
+</body>
+</html>

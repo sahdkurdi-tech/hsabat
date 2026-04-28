@@ -1,0 +1,266 @@
+/* ناساندنی فۆنتی لۆکاڵی NRT */
+@font-face {
+    font-family: 'NRT';
+    src: url('../fonts/NRT-Reg.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* ڕێکخستنی گشتی */
+body {
+    font-family: 'NRT', Tahoma, Arial, sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 0; 
+    direction: rtl; 
+}
+
+/* ========================================= */
+/* بەشی مینۆی سەرەوە و سڵاید مینۆی مۆبایل */
+/* ========================================= */
+
+.navbar {
+    background-color: #2c3e50;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* مینۆی لاپتۆپ */
+.desktop-menu {
+    display: flex;
+    gap: 15px;
+}
+
+.desktop-menu a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    font-size: 16px;
+}
+
+.desktop-menu a:hover, .desktop-menu a.active {
+    background-color: #34495e;
+}
+
+/* دوگمەی مینۆی مۆبایل (سەرەتا شاراوەیە) */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 26px;
+    cursor: pointer;
+}
+
+/* سڵاید مینۆی مۆبایل */
+.slide-menu {
+    height: 100%; 
+    width: 250px; 
+    position: fixed; 
+    top: 0; 
+    right: -250px; 
+    background-color: #2c3e50; 
+    z-index: 1000; 
+    transition: 0.3s; 
+    padding-top: 60px;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.5);
+}
+
+.slide-menu a {
+    padding: 15px 25px; 
+    text-decoration: none; 
+    font-size: 18px; 
+    color: white; 
+    display: block; 
+    transition: background-color 0.3s;
+    border-bottom: 1px solid #34495e;
+}
+
+.slide-menu a:hover {
+    background-color: #1a252f;
+}
+
+/* دوگمەی داخستنی سڵاید مینۆ */
+.close-btn {
+    position: absolute; 
+    top: 15px; 
+    right: 20px; 
+    font-size: 36px; 
+    color: white; 
+    text-decoration: none;
+    border-bottom: none !important;
+    padding: 0 !important;
+}
+
+/* ڕەشکردنی پاشبنەما کاتێک مینۆی مۆبایل دەکرێتەوە */
+.overlay {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0,0,0,0.5); 
+    z-index: 999; 
+    display: none; 
+}
+
+/* ========================================= */
+/* ڕێکخستنی بەشەکانی تری سیستەم */
+/* ========================================= */
+
+.container {
+    max-width: 70%; /* زۆر گرنگە بۆ ئەوەی بەشێکی زۆری شاشەکە بگرێت */
+    margin: 30px auto;
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    box-sizing: border-box; 
+    overflow-x: hidden; 
+}
+
+h2, h3 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 25px; margin-top: 0; }
+form { display: flex; flex-direction: column; width: 100%; box-sizing: border-box; }
+label { font-weight: bold; margin-bottom: 8px; color: #34495e; }
+
+input[type="text"], input[type="number"], input[type="file"], select {
+    padding: 12px; 
+    margin-bottom: 20px; 
+    border: 1px solid #dcdde1; 
+    border-radius: 6px;
+    font-size: 16px; 
+    font-family: inherit; 
+    background-color: #fdfdfd; 
+    transition: 0.3s; 
+    width: 100%; 
+    max-width: 100%; 
+    box-sizing: border-box;
+}
+
+input:focus, select:focus { border-color: #3498db; outline: none; box-shadow: 0 0 5px rgba(52, 152, 219, 0.3); background-color: #fff; }
+
+button[type="submit"], .action-btn {
+    background-color: #3498db; color: white; padding: 14px 20px; border: none; border-radius: 6px;
+    font-size: 16px; cursor: pointer; transition: 0.3s; font-family: inherit; font-weight: bold;
+    box-sizing: border-box;
+}
+button[type="submit"]:hover, .action-btn:hover { background-color: #2980b9; }
+
+/* خشتەکان بە گونجاوی بۆ مۆبایل */
+.table-responsive {
+    overflow-x: auto;
+    width: 100%;
+}
+
+table { width: 100%; border-collapse: collapse; margin-top: 20px; min-width: 600px; }
+th, td { padding: 14px 15px; border: 1px solid #e0e0e0; text-align: right; }
+th { background-color: #f8f9fa; color: #2c3e50; font-weight: bold; }
+tr:nth-child(even) { background-color: #fbfbfc; }
+
+/* ڕەنگە تایبەتەکان */
+.locked { color: #e74c3c; font-weight: bold; background-color: #fadbd8; padding: 4px 8px; border-radius: 4px; }
+.open { color: #27ae60; font-weight: bold; background-color: #d5f5e3; padding: 4px 8px; border-radius: 4px; }
+.danger-row { background-color: #fdedec !important; }
+.danger-text { color: #c0392b; font-weight: bold; font-size: 13px; }
+.btn-deduct { background-color: #2ecc71; color: white; border: none; padding: 8px 15px; cursor: pointer; border-radius: 4px; font-family: inherit; }
+.btn-deduct:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+
+/* ========================================= */
+/* چارەسەری کێشەی درۆپداونەکان (Select) */
+/* ========================================= */
+
+select {
+    padding: 12px 15px;
+    font-family: inherit;
+    width: 100%;
+    box-sizing: border-box;
+    background-position: left 15px center; 
+    direction: rtl;
+    cursor: pointer;
+}
+
+select option {
+    direction: rtl;
+    text-align: right;
+}
+
+/* ڕێکخستنی تایبەت بە ڕیزبوونی دوگمەی + و - */
+.flex-row { 
+    display: flex; 
+    gap: 10px; 
+    align-items: center; 
+    margin-bottom: 20px; 
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.flex-row select { 
+    margin-bottom: 0; 
+    flex: 1; 
+}
+
+
+/* ========================================= */
+/* دیزاینی کارتەکانی هەڵبژاردن لەبری درۆپداون */
+/* ========================================= */
+.radio-group { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 10px; 
+    margin-bottom: 10px; 
+    width: 100%; 
+}
+
+.radio-item {
+    padding: 12px 18px; 
+    border: 2px solid #e0e0e0; 
+    border-radius: 8px;
+    cursor: pointer; 
+    background: #fdfdfd; 
+    transition: 0.2s; 
+    font-size: 15px; 
+    text-align: center;
+    flex-grow: 1; 
+    user-select: none;
+}
+
+.radio-item:hover { border-color: #bdc3c7; }
+
+.radio-item.active { 
+    border-color: #3498db; 
+    background: #eaf2f8; 
+    color: #2980b9; 
+    font-weight: bold; 
+    box-shadow: 0 2px 5px rgba(52,152,219,0.2); 
+}
+
+/* ========================================= */
+/* گونجاندن بۆ مۆبایل و ئایپاد (Responsive) */
+/* ========================================= */
+@media (max-width: 768px) {
+    .desktop-menu { display: none; }
+    .mobile-menu-btn { display: block; }
+    
+    .container { margin: 15px; padding: 20px; width: auto; max-width: none; }
+    
+    input, select, button { font-size: 14px; padding: 10px; }
+}
+
+/* دیزاینی کارتی وەسڵەکان لەناو مۆداڵی تایبەتی */
+.receipt-card { border: 1px solid #dcdde1; border-radius: 8px; margin-bottom: 20px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+.receipt-header { background: #f8f9fa; padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; border-right: 4px solid #3498db; }
+.receipt-body { padding: 15px 20px; }
+.expense-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 14px; }
+.expense-row:last-child { border-bottom: none; }

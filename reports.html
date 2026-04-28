@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ڕاپۆرتەکان و شەفافیەت</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="navbar-brand">MROVDOSTAN</div>
+        
+        <div class="desktop-menu">
+            <a href="donors.html">بەخشەران</a>
+            <a href="advances.html">سلفە و پاکتاوکردن</a>
+            <a href="projects.html">پڕۆژەکان</a>
+            <a href="kafala.html">کەفالەت</a>
+            <a href="expenses.html">سەرفی گشتی</a>
+            <a href="reports.html" class="active">ڕاپۆرتەکان</a>
+        </div>
+        
+        <button class="mobile-menu-btn" onclick="openMenu()">☰</button>
+    </div>
+
+    <div id="slideMenu" class="slide-menu">
+        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+        <a href="donors.html">بەخشەران</a>
+        <a href="advances.html">سلفە و پاکتاوکردن</a>
+        <a href="projects.html">پڕۆژەکان</a>
+        <a href="kafala.html">کەفالەت</a>
+        <a href="expenses.html">سەرفی گشتی</a>
+        <a href="reports.html">ڕاپۆرتەکان</a>
+    </div>
+    
+    <div id="overlay" class="overlay"></div>
+
+    <div class="container">
+        <h2>سیستەمی ڕاپۆرتەکان و دەرهاویشتەی PDF</h2>
+
+        <div class="report-card">
+            <h3>١. کەشف قاسەی ڕۆژانە (Daily Cash Book)</h3>
+            <p>ئەم ڕاپۆرتە کۆی ئەو پارانە پیشان دەدات کە ئەمڕۆ هاتوونەتە ژوورەوە یان وەک سلفە دەرچوون، بۆ ئەوەی محاسب لەگەڵ چەکمەجەکەی بەراوردی بکات.</p>
+            <button class="action-btn" id="btnDailyReport">دروستکردنی ڕاپۆرتی ئەمڕۆ</button>
+        </div>
+
+        <div class="report-card">
+            <h3>٢. ڕاپۆرتی گشتگیری بەخشەر (VIP Donor Report)</h3>
+            <p>ناوی بەخشەرێک داخڵ بکە بۆ ئەوەی تەواوی مێژووی بەخشینەکانی بە (دینار و دۆلار) بە فەرمی بۆ پرینت بکەیت.</p>
+            <input type="text" id="vipNameInput" placeholder="ناوی دەوڵەمەند / بەخشەر..." style="margin-bottom: 10px;">
+            <button class="action-btn" id="btnVipReport">ئامادەکردنی ڕاپۆرتی PDF</button>
+        </div>
+
+        <div class="report-card">
+            <h3>٣. پێشکەوتنی پڕۆژەکان</h3>
+            <p>ڕاپۆرتێک لەسەر دۆخی دارایی پڕۆژەکان و پارەی ماوە لە سندووقەکانیان.</p>
+            <button class="action-btn" id="btnProjectsReport">پوختەی پڕۆژەکان</button>
+        </div>
+    </div>
+
+    <script src="js/menu.js"></script>
+    <script type="module" src="js/reports.js"></script>
+</body>
+</html>

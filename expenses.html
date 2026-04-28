@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سەرفی گشتی (خەرجییەکان)</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
+        .modal-content { background-color: #f9f9f9; margin: 5% auto; padding: 25px; border-radius: 8px; width: 95%; max-width: 1000px; max-height: 90vh; overflow-y: auto; direction: rtl; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .close-modal { float: left; font-size: 32px; cursor: pointer; color: #555; }
+        .close-modal:hover { color: #e74c3c; }
+        .history-btn { padding: 15px; font-size: 18px; font-weight: bold; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; color: white; width: 100%; transition: 0.3s; }
+        
+        .flex-row { display: flex; gap: 8px; align-items: center; margin-bottom: 15px; width: 100%; box-sizing: border-box; }
+        .icon-btn { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: bold; font-size: 15px; flex: 1; font-family: inherit; }
+        .btn-add { background-color: #27ae60; }
+        .btn-delete { background-color: #e74c3c; }
+        .btn-add:hover { background-color: #219653; }
+        .btn-delete:hover { background-color: #c0392b; }
+
+        /* دیزاینی تایبەت بۆ خانەی بەروار کە وەک وێنەکە دەربکەوێت */
+        .date-input { width: 100%; padding: 12px 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 16px; margin-bottom: 20px; color: #333; background-color: #fff; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="navbar-brand">MROVDOSTAN</div>
+        <div class="desktop-menu">
+            <a href="donors.html">بەخشەران</a>
+            <a href="advances.html">سلفە و پاکتاوکردن</a>
+            <a href="projects.html">پڕۆژەکان</a>
+            <a href="kafala.html">کەفالەت</a>
+            <a href="expenses.html" class="active">سەرفی گشتی</a>
+            <a href="reports.html">ڕاپۆرتەکان</a>
+        </div>
+        <button class="mobile-menu-btn" onclick="openMenu()">☰</button>
+    </div>
+
+    <div id="slideMenu" class="slide-menu">
+        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+        <a href="donors.html">بەخشەران</a>
+        <a href="advances.html">سلفە و پاکتاوکردن</a>
+        <a href="projects.html">پڕۆژەکان</a>
+        <a href="kafala.html">کەفالەت</a>
+        <a href="expenses.html">سەرفی گشتی</a>
+        <a href="reports.html">ڕاپۆرتەکان</a>
+    </div>
+    
+    <div id="overlay" class="overlay"></div>
+
+    <div class="container">
+        
+        <h2>تۆمارکردنی سەرفی گشتی (خەرجی نوێ)</h2>
+        <form id="expenseForm">
+            
+            <label>بڕی پارە:</label>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="number" id="expenseAmount" required style="flex: 2; margin-bottom: 0;">
+                <select id="expenseCurrency" onchange="checkCurrencyMatch()" style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-family: inherit;">
+                    <option value="IQD">دینار (IQD)</option>
+                    <option value="USD">دۆلار ($)</option>
+                </select>
+            </div>
+
+            <label>ناوی وەرگر:</label>
+            <input type="text" id="recipientName" required placeholder="نموونە: کاک سامان، یان کرێی کارەبا...">
+
+            <label>ناونیشان (شوێن):</label>
+            <input type="text" id="recipientAddress" placeholder="نموونە: هەولێر - بازاڕ...">
+
+            <label>ژمارەی مۆبایل:</label>
+            <input type="text" id="recipientPhone" placeholder="نموونە: 07501234567">
+
+            <label>هۆکاری سەرفکردنەکە:</label>
+            <div id="reasonContainer" class="radio-group"></div>
+            <input type="hidden" id="reasonValue" required>
+            <input type="hidden" id="reasonTextValue">
+            
+            <div class="flex-row" style="margin-bottom: 25px;">
+                <button type="button" class="icon-btn btn-add" onclick="addReason()">+ زیادکردنی هۆکار</button>
+                <button type="button" class="icon-btn btn-delete" onclick="deleteReason()">🗑️ سڕینەوەی دیاریکراو</button>
+            </div>
+
+            <label>لەسەر حیسابی کێ خەرج دەکرێت؟ (ناوی بەخشەر):</label>
+            <select id="donorSelect" required onchange="loadDonorReceipts()">
+                <option value="general_fund">سندووقی گشتی (حیسابی هیچ کەسێک نییە)</option>
+            </select>
+            <small style="color: #e74c3c; display: block; margin-bottom: 15px;">تێبینی: ئەگەر بەخشەرێک هەڵبژێریت، پارەکە ڕاستەوخۆ لە وەسڵەکەی دەبڕدرێت.</small>
+
+            <div id="receiptSection" style="display: none; background: #f4f6f7; padding: 15px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #dcdde1;">
+                <label style="color: #2980b9;">کام وەسڵەی بەکاردەهێنیت؟:</label>
+                <select id="donorReceipt" onchange="checkCurrencyMatch()" style="margin-bottom: 15px;">
+                    <option value="">تکایە سەرەتا بەخشەر هەڵبژێرە...</option>
+                </select>
+
+                <div id="exchangeRateDiv" style="display:none; background: #fff3cd; padding: 10px; border-radius: 6px; border: 1px solid #ffe69c;">
+                    <label id="exchangeRateLabel" style="color: #d35400; font-size: 14px;">نرخی سەرفی ئەمڕۆ (بۆ ١٠٠ دۆلار بە دینار):</label>
+                    <input type="number" id="exchangeRate" placeholder="نموونە: ١٥٢٠٠٠" style="margin-bottom: 0;">
+                    <small style="color: #856404; display: block; margin-top: 5px;">تێبینی: چونکە دراوی وەسڵەکە و دراوی خەرجییەکە جیاوازن، ئەمە بەکاردێت بۆ بڕینی دروست لە وەسڵەکە.</small>
+                </div>
+            </div>
+
+            <label>بەرواری سەرفکردن:</label>
+            <input type="date" id="expenseDate" class="date-input" required>
+
+            <button type="submit" class="action-btn">تۆمارکردن و خەرجکردنی پارەکە</button>
+        </form>
+
+        <div style="margin-top: 40px;">
+            <button type="button" class="history-btn" style="background: #2c3e50;" onclick="openExpenseHistory()">مێژووی تەواوی مەسروفاتەکان</button>
+        </div>
+
+    </div>
+
+    <div id="addReasonModal" class="modal" style="z-index: 3000;">
+        <div class="modal-content" style="max-width: 400px; text-align: center; margin: 10% auto; border-top: 5px solid #2980b9;">
+            <h3 style="color: #2980b9; margin-top: 0;">زیادکردنی هۆکارێکی نوێ</h3>
+            <p style="color: #666; font-size: 15px; margin-bottom: 20px;">ناوی هۆکارەکە بنووسە (نموونە: کرێی ئۆفیس، هاوکاری...):</p>
+            <input type="text" id="newReasonInput" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 16px;">
+            <div style="display: flex; gap: 10px;">
+                <button onclick="submitNewReason()" class="action-btn" style="flex: 1; background-color: #27ae60;">پاشەکەوتکردن</button>
+                <button onclick="closeModal('addReasonModal')" class="action-btn" style="flex: 1; background-color: #95a5a6;">پاشگەزبوونەوە</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="expenseHistoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('expenseHistoryModal')">&times;</span>
+            <h2 style="border-bottom: 2px solid #2c3e50; padding-bottom: 10px;">مێژووی تەواوی مەسروفاتەکان</h2>
+            
+            <div class="table-responsive">
+                <table id="expenseHistoryTable">
+                    <thead>
+                        <tr>
+                            <th>بەروار</th>
+                            <th>هۆکار</th>
+                            <th>ناوی وەرگر</th>
+                            <th>بڕی پارە</th>
+                            <th>لەسەر حیسابی کێ؟</th>
+                            <th>ژ.مۆبایل / ناونیشان</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="customAlertModal" class="modal" style="z-index: 4000;">
+        <div class="modal-content" style="max-width: 400px; text-align: center; margin: 15% auto; border-top: 5px solid #27ae60;" id="alertModalBorder">
+            <div id="alertIcon" style="font-size: 50px; margin-bottom: 10px;">✅</div>
+            <h3 id="alertTitle" style="margin-top: 0;">سەرکەوتوو بوو</h3>
+            <p id="alertMessage" style="color: #666; font-size: 16px; margin-bottom: 20px; white-space: pre-wrap;"></p>
+            <button onclick="closeModal('customAlertModal')" class="action-btn" style="background-color: #3498db;">باشە، تێگەیشتم</button>
+        </div>
+    </div>
+
+    <div id="customConfirmModal" class="modal" style="z-index: 4000;">
+        <div class="modal-content" style="max-width: 400px; text-align: center; margin: 15% auto; border-top: 5px solid #e74c3c;">
+            <div style="font-size: 50px; margin-bottom: 10px;">⚠️</div>
+            <h3 style="color: #e74c3c; margin-top: 0;">ئایا دڵنیایت؟</h3>
+            <p id="confirmMessage" style="color: #666; font-size: 16px; margin-bottom: 20px; white-space: pre-wrap;"></p>
+            <div style="display: flex; gap: 10px;">
+                <button id="confirmYesBtn" class="action-btn" style="flex: 1; background-color: #e74c3c;">بەڵێ، دڵنیام</button>
+                <button onclick="closeModal('customConfirmModal')" class="action-btn" style="flex: 1; background-color: #95a5a6;">نەخێر</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/menu.js"></script>
+    <script type="module" src="js/expenses.js"></script>
+</body>
+</html>

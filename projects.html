@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بەڕێوەبردنی پڕۆژەکان</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
+        .modal-content { background-color: #fff; margin: 5% auto; padding: 25px; border-radius: 8px; width: 90%; max-width: 700px; max-height: 80vh; overflow-y: auto; direction: rtl; }
+        .close-modal { color: #aaa; float: left; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close-modal:hover { color: #e74c3c; }
+        .btn-history { background-color: #f39c12; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 13px; }
+        .btn-history:hover { background-color: #d68910; }
+        .btn-complete { background-color: #34495e; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 13px; margin-right: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="navbar-brand">MROVDOSTAN</div>
+        <div class="desktop-menu">
+            <a href="donors.html">بەخشەران</a>
+            <a href="advances.html">سلفە و پاکتاوکردن</a>
+            <a href="projects.html" class="active">پڕۆژەکان</a>
+            <a href="kafala.html">کەفالەت</a>
+            <a href="expenses.html">سەرفی گشتی</a>
+            <a href="reports.html">ڕاپۆرتەکان</a>
+        </div>
+        <button class="mobile-menu-btn" onclick="openMenu()">☰</button>
+    </div>
+
+    <div id="slideMenu" class="slide-menu">
+        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+        <a href="donors.html">بەخشەران</a>
+        <a href="advances.html">سلفە و پاکتاوکردن</a>
+        <a href="projects.html">پڕۆژەکان</a>
+        <a href="kafala.html">کەفالەت</a>
+        <a href="expenses.html">سەرفی گشتی</a>
+        <a href="reports.html">ڕاپۆرتەکان</a>
+    </div>
+    <div id="overlay" class="overlay"></div>
+
+    <div class="container">
+        <h2>ڕاگەیاندنی پڕۆژەی نوێ</h2>
+        <form id="projectForm">
+            <label>ناوی پڕۆژە (نموونە: مزگەوت):</label>
+            <input type="text" id="projectName" required>
+            <label>تێچووی خەمڵێنراو (پێشبینیکراو):</label>
+            <input type="number" id="estimatedCost" required>
+            <label>جۆری دراو:</label>
+            <select id="projectCurrency">
+                <option value="USD">دۆلار ($)</option>
+                <option value="IQD">دینار (IQD)</option>
+            </select>
+            <button type="submit" class="action-btn">کردنەوەی دۆسیەی پڕۆژە</button>
+        </form>
+
+        <hr>
+
+        <h2>خەرجکردنی پارە لە پڕۆژە (داشکاندن لە سندووق)</h2>
+        <form id="spendProjectForm">
+            <label>هەڵبژاردنی پڕۆژە:</label>
+            <select id="spendProjectId" required onchange="checkProjectCurrency();">
+                <option value="">چاوەڕوان بە...</option>
+            </select>
+
+            <label>پارەی کام بەخشەر خەرج دەکەیت؟ (تەنیا ئەوانە پیشان دەدات کە پارەیان ماوە)</label>
+            <select id="spendDonorName" required onchange="checkProjectCurrency();">
+                <option value="">چاوەڕوان بە...</option>
+            </select>
+
+            <label>بڕی پارەی پێدراو / خەرجکراو (بڕی کاش):</label>
+            <input type="number" id="spendAmount" required>
+
+            <label>دراوی خەرجکراو (ئەو دراوەی کە بە کاش دەیدەیت):</label>
+            <select id="spendCurrency" onchange="checkProjectCurrency()">
+                <option value="USD">دۆلار ($)</option>
+                <option value="IQD">دینار (IQD)</option>
+            </select>
+
+            <div id="projectExchangeRateDiv" style="display:none; background: #fff3cd; padding: 15px; border-radius: 6px; margin-bottom: 20px; border-right: 4px solid #f39c12;">
+                <label style="color: #d35400;">نرخی سەرفی ئەمڕۆ (بۆ ١٠٠ دۆلار بە دینار) پێویستە:</label>
+                <input type="number" id="projectExchangeRate" placeholder="نموونە: ١٥٠٠٠٠" style="margin-bottom: 0;">
+                <small style="color: #555; display: block; margin-top: 8px;">
+                    <strong>تێبینی:</strong> سیستەمەکە خۆی بەم نرخە پارەکە دەکاتەوە بە دراوی پڕۆژەکە و دراوی بەخشەرەکە بۆ ئەوەی حیسابات بە دروستی بمێنێتەوە.
+                </small>
+            </div>
+
+            <button type="submit" class="action-btn" style="background-color: #e74c3c;">خەرجکردن لەم پڕۆژەیە</button>
+        </form>
+
+        <hr>
+
+        <h2>داشبۆردی پڕۆژە چالاکەکان</h2>
+        <div class="table-responsive">
+            <table id="projectsTable">
+                <thead>
+                    <tr>
+                        <th>ناوی پڕۆژە</th>
+                        <th>کۆی پێدراو</th>
+                        <th>کۆی خەرجکراو</th>
+                        <th>ماوە بۆ تەواوبوون</th>
+                        <th>پارەی بەردەست</th>
+                        <th>دۆخی سندووق</th>
+                        <th>کردارەکان</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <hr>
+
+        <h2>ئەرشیفی پڕۆژە تەواوبووەکان</h2>
+        <div class="table-responsive">
+            <table id="completedProjectsTable">
+                <thead>
+                    <tr>
+                        <th>ناوی پڕۆژە</th>
+                        <th>کۆی خەرجی کۆتایی</th>
+                        <th>بەرواری تەواوبوون</th>
+                        <th>وردەکاری</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="historyModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeHistoryModal()">&times;</span>
+            <h3 id="modalProjectName" style="border-bottom: 1px solid #ddd; padding-bottom: 10px;">مێژووی پڕۆژە</h3>
+            
+            <h4 style="margin-bottom: 5px; color: #27ae60;">پارە هاتووەکان (بەخشەران)</h4>
+            <div class="table-responsive" style="margin-bottom: 20px;">
+                <table id="modalHistoryTable">
+                    <thead><tr><th>ناوی بەخشەر</th><th>بڕی پارە</th><th>بەروار و کات</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <h4 style="margin-bottom: 5px; color: #c0392b;">پارە خەرجکراوەکان</h4>
+            <div class="table-responsive">
+                <table id="modalExpensesTable">
+                    <thead><tr><th>لەسەر حیسابی کێ؟</th><th>بڕی خەرجکراو</th><th>بەروار و کات</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/menu.js"></script>
+    <script type="module" src="js/projects.js"></script>
+    <script>
+        function closeHistoryModal() { document.getElementById('historyModal').style.display = 'none'; }
+    </script>
+</body>
+</html>
