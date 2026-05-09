@@ -6,7 +6,6 @@
     <title>بەڕێوەبردنی کەفالەت</title>
     <link rel="stylesheet" href="css/styles.css">
     <style>
-        /* دیزاینی مۆداڵەکان */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
         .modal-content { background-color: #f9f9f9; margin: 10% auto; padding: 25px; border-radius: 8px; width: 90%; max-width: 400px; text-align: center; direction: rtl; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
     </style>
@@ -17,12 +16,13 @@
         <div class="navbar-brand">MROVDOSTAN</div>
         
         <div class="desktop-menu">
-            <a href="donors.html">بەخشەران</a>
+            <a href="donors.html">مرۆڤدۆستان</a>
             <a href="advances.html">سلفە و پاکتاوکردن</a>
             <a href="projects.html">پڕۆژەکان</a>
             <a href="kafala.html" class="active">کەفالەت</a>
             <a href="expenses.html">سەرفی گشتی</a>
             <a href="reports.html">ڕاپۆرتەکان</a>
+            <a href="#" onclick="logoutUser()" style="background-color: #e74c3c; margin-right: 15px;">دەرچوون ⍈</a>
         </div>
         
         <button class="mobile-menu-btn" onclick="openMenu()">☰</button>
@@ -30,42 +30,44 @@
 
     <div id="slideMenu" class="slide-menu">
         <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
-        <a href="donors.html">بەخشەران</a>
+        <a href="donors.html">مرۆڤدۆستان</a>
         <a href="advances.html">سلفە و پاکتاوکردن</a>
         <a href="projects.html">پڕۆژەکان</a>
         <a href="kafala.html">کەفالەت</a>
         <a href="expenses.html">سەرفی گشتی</a>
         <a href="reports.html">ڕاپۆرتەکان</a>
+        <a href="#" onclick="logoutUser()" style="background-color: #e74c3c; margin-right: 15px;">دەرچوون ⍈</a>
     </div>
     
     <div id="overlay" class="overlay"></div>
 
     <div class="container">
-        <h2>تۆمارکردنی جزدانی کەفالەتی نوێ (پێشوەختە)</h2>
+        <h2>تۆمارکردنی کەفالەتی نوێ</h2>
         <form id="kafalaForm">
-            <label>ناوی بەخشەر (کەفیل):</label>
+            <label>ناوی مرۆڤدۆستەکە (کەفیل):</label>
             <select id="sponsorName" required onchange="loadDonorReceipts()">
                 <option value="">چاوەڕوان بە...</option>
             </select>
 
             <label>کام وەسڵەی بەکاردەهێنیت؟:</label>
             <select id="sponsorReceipt" required onchange="checkCurrencyMatch()">
-                <option value="">تکایە سەرەتا بەخشەر هەڵبژێرە...</option>
+                <option value="">تکایە سەرەتا مرۆڤدۆستێک هەڵبژێرە...</option>
             </select>
+            <small style="color: #e74c3c; display: block; margin-bottom: 15px;">تێبینی: پارەکە بە یەکجار و ڕاستەوخۆ لەم وەسڵە دەبڕدرێت.</small>
 
-            <label>ناوی سوودمەند (هەتیو / نەخۆش):</label>
+            <label>ناوی سوودمەند (هەتیو / خێزان / نەخۆش):</label>
             <input type="text" id="beneficiaryName" required>
 
-            <label>کۆی گشتی پارەی پێدراو (بۆ تەواوی ماوەکە):</label>
-            <input type="number" id="totalAmount" required placeholder="نموونە: ١٢٠٠">
+            <label>بڕی پارەی کەفالەتەکە (کۆی گشتی بە یەکجار):</label>
+            <input type="number" id="totalAmount" required placeholder="نموونە: 10000000">
 
-            <label>بڕی بڕینی مانگانە (چەندی لێ خەرج بکرێت مانگانە؟):</label>
-            <input type="number" id="monthlyDeduction" required placeholder="نموونە: ١٠٠">
+            <label>ماوەی کەفالەت (بۆ چەند مانگە؟):</label>
+            <input type="number" id="kafalaDuration" required placeholder="نموونە: 12">
 
             <label>جۆری دراوی کەفالەتەکە:</label>
             <select id="currency" onchange="checkCurrencyMatch()">
-                <option value="USD">دۆلار ($)</option>
                 <option value="IQD">دینار (IQD)</option>
+                <option value="USD">دۆلار ($)</option>
             </select>
 
             <div id="exchangeRateDiv" style="display: none; background: #fff3cd; padding: 15px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #ffe69c;">
@@ -74,12 +76,12 @@
                 <small style="color: #856404; display: block; margin-top: 5px;">تێبینی: چونکە دراوی وەسڵەکە و دراوی کەفالەتەکە جیاوازن، ئەمە بەکاردێت بۆ بڕینی دروست لە وەسڵەکە.</small>
             </div>
 
-            <button type="submit" class="action-btn">کردنەوەی جزدانی کەفالەت</button>
+            <button type="submit" class="action-btn">تۆمارکردن و بڕینی پارەکە</button>
         </form>
 
         <hr>
 
-        <h2>داشبۆردی کەفالەتەکان و بیرخەرەوەی نوێکردنەوە</h2>
+        <h2>داشبۆردی کەفالەتە تۆمارکراوەکان</h2>
         
         <div class="table-responsive">
             <table id="kafalaTable">
@@ -87,10 +89,9 @@
                     <tr>
                         <th>ناوی کەفیل</th>
                         <th>ناوی سوودمەند</th>
-                        <th>پارەی ماوە (جزدان)</th>
-                        <th>بڕینی مانگانە</th>
-                        <th>مانگی ماوە بۆ تەواوبوون</th>
-                        <th>بڕیاری مانگانە</th>
+                        <th>کۆی پارەی تەرخانکراو</th>
+                        <th>ماوەی کەفالەت</th>
+                        <th>بەرواری تۆمارکردن</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -99,7 +100,7 @@
         </div>
     </div>
 
-    <div id="customAlertModal" class="modal">
+    <div id="customAlertModal" class="modal" style="z-index: 3000;">
         <div class="modal-content" style="border-top: 5px solid #27ae60;" id="alertModalBorder">
             <div id="alertIcon" style="font-size: 50px; margin-bottom: 10px;">✅</div>
             <h3 id="alertTitle" style="margin-top: 0;">سەرکەوتوو بوو</h3>
@@ -108,7 +109,7 @@
         </div>
     </div>
 
-    <div id="customConfirmModal" class="modal">
+    <div id="customConfirmModal" class="modal" style="z-index: 3000;">
         <div class="modal-content" style="border-top: 5px solid #e74c3c;">
             <div style="font-size: 50px; margin-bottom: 10px;">⚠️</div>
             <h3 style="color: #e74c3c; margin-top: 0;">ئایا دڵنیایت؟</h3>
@@ -122,5 +123,6 @@
 
     <script src="js/menu.js"></script>
     <script type="module" src="js/kafala.js"></script>
+    <script type="module" src="js/auth.js"></script>
 </body>
 </html>

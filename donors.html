@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>وەرگرتنی پارە و بەخشەران</title>
+    <title>وەرگرتنی پارە و مرۆڤدۆستان</title>
     <link rel="stylesheet" href="css/styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -20,59 +20,81 @@
         .total-card h3 { margin: 10px 0 0 0; font-size: 28px; direction: ltr; }
         
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
-        .modal-content { background-color: #f9f9f9; margin: 2% auto; padding: 25px; border-radius: 8px; width: 95%; max-width: 1000px; max-height: 90vh; overflow-y: auto; direction: rtl; }
+        .modal-content { 
+            background-color: #f9f9f9; 
+            margin: 30px auto; 
+            padding: 25px; 
+            border-radius: 8px; 
+            width: 95%; 
+            max-width: 1000px; 
+            max-height: calc(100vh - 60px); 
+            overflow-y: auto; 
+            direction: rtl; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
+            box-sizing: border-box; 
+        }
         .close-modal { float: left; font-size: 32px; cursor: pointer; color: #555; }
         .close-modal:hover { color: #e74c3c; }
         
         .history-btn { padding: 15px; font-size: 18px; font-weight: bold; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; color: white; width: 100%; transition: 0.3s; }
+        
+        /* دیزاینی تایبەت بۆ داشبۆردە گشتییەکە */
+        .dashboard-section { background: white; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #e0e0e0; }
+        .dashboard-section h4 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 15px; }
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .stat-item { background: #f8f9fa; padding: 15px; border-radius: 6px; text-align: center; border-right: 4px solid #3498db; }
+        .stat-item span { display: block; font-size: 14px; color: #7f8c8d; margin-bottom: 5px; }
+        .stat-item strong { font-size: 20px; color: #2c3e50; direction: ltr; display: inline-block; }
     </style>
 </head>
 <body>
 
     <div class="navbar">
-        <div class="navbar-brand">سیستەمی خێرخوازی</div>
+        <div class="navbar-brand">MROVDOSTAN</div>
         <div class="desktop-menu">
-            <a href="donors.html" class="active">بەخشەران</a>
+            <a href="donors.html" class="active">مرۆڤدۆستان</a>
             <a href="advances.html">سلفە و پاکتاوکردن</a>
             <a href="projects.html">پڕۆژەکان</a>
             <a href="kafala.html">کەفالەت</a>
             <a href="expenses.html">سەرفی گشتی</a>
             <a href="reports.html">ڕاپۆرتەکان</a>
+            <a href="#" onclick="logoutUser()" style="background-color: #e74c3c; margin-right: 15px;">دەرچوون ⍈</a>
         </div>
         <button class="mobile-menu-btn" onclick="openMenu()">☰</button>
     </div>
 
     <div id="slideMenu" class="slide-menu">
         <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
-        <a href="donors.html">بەخشەران</a>
+        <a href="donors.html">مرۆڤدۆستان</a>
         <a href="advances.html">سلفە و پاکتاوکردن</a>
         <a href="projects.html">پڕۆژەکان</a>
         <a href="kafala.html">کەفالەت</a>
         <a href="expenses.html">سەرفی گشتی</a>
         <a href="reports.html">ڕاپۆرتەکان</a>
+        <a href="#" onclick="logoutUser()" style="background-color: #e74c3c; margin-right: 15px;">دەرچوون ⍈</a>
     </div>
     <div id="overlay" class="overlay"></div>
 
     <div class="container">
-        <div class="totals-container">
-            <div class="total-card" style="border-color: #27ae60;">
-                <p style="margin:0; color:#555; font-weight:bold;">کۆی گشتی پارەی ماوەی بەخشەران (دۆلار)</p>
-                <h3 id="globalTotalUSD" style="color: #27ae60;">0.00 $</h3>
-            </div>
-            <div class="total-card" style="border-color: #2980b9;">
-                <p style="margin:0; color:#555; font-weight:bold;">کۆی گشتی پارەی ماوەی بەخشەران (دینار)</p>
-                <h3 id="globalTotalIQD" style="color: #2980b9;">0 IQD</h3>
-            </div>
-        </div>
+        <button type="button" class="history-btn" style="background: #3498db; margin-bottom: 30px; font-size: 20px; padding: 20px;" onclick="openMasterDashboard()">📊 بینینی کۆی گشتی سندووقەکان (داشبۆردی دارایی)</button>
 
         <h2>وەرگرتنی پارەی نوێ</h2>
         <form id="donationForm">
-            <label>ناوی بەخشەر (یان هەڵبژاردنی VIP):</label>
+            <label>ناوی مرۆڤدۆست (یان هەڵبژاردنی VIP):</label>
             <input type="text" id="donorName" required list="vipDonors">
             <datalist id="vipDonors"></datalist>
 
             <label>بڕی پارە:</label>
             <input type="number" id="amount" required>
+
+            <label>جۆری پارەکە:</label>
+            <div id="donationTypeContainer" class="radio-group"></div>
+            <input type="hidden" id="donationTypeValue" required>
+            <input type="hidden" id="donationTypeTextValue">
+            <div class="flex-row" style="margin-bottom: 25px;">
+                <button type="button" class="icon-btn btn-add" onclick="addDonationType()">+ زیادکردنی جۆر</button>
+                <button type="button" class="icon-btn btn-delete" onclick="deleteDonationType()">🗑️ سڕینەوەی دیاریکراو</button>
+            </div>
 
             <label>جۆری دراو:</label>
             <div id="currencyContainer" class="radio-group" style="margin-bottom: 25px;"></div>
@@ -101,12 +123,55 @@
 
         <div style="display: flex; gap: 15px; margin-top: 30px;">
             <div style="flex: 1;">
-                <button type="button" class="history-btn" style="background: #8e44ad;" onclick="openSpecificHistory()">مێژووی تایبەتی بەخشەرەکان</button>
-                <p style="text-align:center; font-size:12px; color:#666; margin-top:5px;">بۆ بینینی مێژووی یەک بەخشەر بە تەنیا</p>
+                <button type="button" class="history-btn" style="background: #8e44ad;" onclick="openSpecificHistory()">مێژووی تایبەتی مرۆڤدۆستەکان</button>
+                <p style="text-align:center; font-size:12px; color:#666; margin-top:5px;">بۆ بینینی مێژووی یەک مرۆڤدۆست بە تەنیا</p>
             </div>
             <div style="flex: 1;">
-                <button type="button" class="history-btn" style="background: #2c3e50;" onclick="openGeneralHistory()">مێژووی گشتی بەخشەرەکان</button>
-                <p style="text-align:center; font-size:12px; color:#666; margin-top:5px;">بۆ بینینی خشتەی تێکەڵەی هەموو بەخشەران</p>
+                <button type="button" class="history-btn" style="background: #2c3e50;" onclick="openGeneralHistory()">مێژووی گشتی مرۆڤدۆستەکان</button>
+                <p style="text-align:center; font-size:12px; color:#666; margin-top:5px;">بۆ بینینی خشتەی تێکەڵەی هەموو مرۆڤدۆستان</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="masterDashboardModal" class="modal">
+        <div class="modal-content" style="background-color: #f4f7f6;">
+            <span class="close-modal" onclick="closeModal('masterDashboardModal')">&times;</span>
+            <h2 style="border-bottom: 2px solid #3498db; padding-bottom: 10px; color: #2c3e50;">داشبۆردی دارایی ڕێکخراو (بەپێی کۆی گشتی وەسڵەکان)</h2>
+            
+            <p style="text-align: center; color: #7f8c8d; font-size: 14px; margin-bottom: 25px;">تێبینی: ئەم داشبۆردە تەنیا (پارەی ماوە / ڕەسید) نیشان دەدات کە تا ئێستا سەرف نەکراوە.</p>
+
+            <div class="dashboard-section">
+                <h4>١. کۆی گشتی پارەی ناو سندووق بەپێی دراو</h4>
+                <div class="stat-grid" id="dashTotalCurrency">
+                    <div style="text-align:center; padding:15px; color:#999;">چاوەڕوان بە...</div>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <h4>٢. کۆی گشتی بەپێی جۆری پارە (زەکات، سەدەقە...)</h4>
+                <div class="stat-grid" id="dashTotalDonationType">
+                    <div style="text-align:center; padding:15px; color:#999;">چاوەڕوان بە...</div>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <h4>٣. کۆی گشتی بەپێی پڕۆژە و سندووقەکان</h4>
+                <div class="stat-grid" id="dashTotalProjects">
+                    <div style="text-align:center; padding:15px; color:#999;">چاوەڕوان بە...</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="addDonationTypeModal" class="modal" style="z-index: 1500;">
+        <div class="modal-content" style="max-width: 400px; text-align: center; border-top: 5px solid #2980b9;">
+            <h3 style="color: #2980b9; margin-top: 0;">زیادکردنی جۆری نوێ</h3>
+            <p style="color: #666; font-size: 15px; margin-bottom: 20px;">ناوی جۆرەکە بنووسە (نموونە: فترە، کەفارەت...)</p>
+            <input type="text" id="newDonationTypeInput" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 16px;">
+            <div style="display: flex; gap: 10px;">
+                <button onclick="submitNewDonationType()" class="action-btn" style="flex: 1; background-color: #27ae60;">پاشەکەوتکردن</button>
+                <button onclick="closeModal('addDonationTypeModal')" class="action-btn" style="flex: 1; background-color: #95a5a6;">پاشگەزبوونەوە</button>
             </div>
         </div>
     </div>
@@ -114,8 +179,8 @@
     <div id="addFundModal" class="modal" style="z-index: 1500;">
         <div class="modal-content" style="max-width: 400px; text-align: center; border-top: 5px solid #2980b9;">
             <h3 style="color: #2980b9; margin-top: 0;">زیادکردنی سندووقی نوێ</h3>
-            <p style="color: #666; font-size: 15px; margin-bottom: 20px;">ناوی سندووق یان پڕۆژە نوێیەکە بنووسە (نموونە: زەکات، سەدەقە...)</p>
-            <input type="text" id="newFundInput" placeholder="ناوی سندووق..." style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 16px;">
+            <p style="color: #666; font-size: 15px; margin-bottom: 20px;">ناوی سندووق یان پڕۆژە نوێیەکە بنووسە (نموونە: ئاوی ماڵان...)</p>
+            <input type="text" id="newFundInput" style="width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit; font-size: 16px;">
             <div style="display: flex; gap: 10px;">
                 <button onclick="submitNewFund()" class="action-btn" style="flex: 1; background-color: #27ae60;">پاشەکەوتکردن</button>
                 <button onclick="closeModal('addFundModal')" class="action-btn" style="flex: 1; background-color: #95a5a6;">پاشگەزبوونەوە</button>
@@ -139,8 +204,8 @@
         <div class="modal-content" style="max-width: 400px; text-align: center; border-top: 5px solid #27ae60;" id="alertModalBorder">
             <div id="alertIcon" style="font-size: 50px; margin-bottom: 10px;">✅</div>
             <h3 id="alertTitle" style="margin-top: 0;">سەرکەوتوو بوو</h3>
-            <p id="alertMessage" style="color: #666; font-size: 16px; margin-bottom: 20px;">پەیامەکە لێرە دەبێت</p>
-            <button onclick="closeModal('customAlertModal')" class="action-btn" style="width: 100%; background-color: #3498db;">باشە، تێگەیشتم</button>
+            <p id="alertMessage" style="color: #666; font-size: 16px; margin-bottom: 20px; white-space: pre-wrap;"></p>
+            <button onclick="closeModal('customAlertModal')" class="action-btn" style="background-color: #3498db;">باشە، تێگەیشتم</button>
         </div>
     </div>
 
@@ -148,76 +213,101 @@
         <div class="modal-content" style="max-width: 400px; text-align: center; border-top: 5px solid #e74c3c;">
             <div style="font-size: 50px; margin-bottom: 10px;">⚠️</div>
             <h3 style="color: #e74c3c; margin-top: 0;">ئایا دڵنیایت؟</h3>
-            <p id="confirmMessage" style="color: #666; font-size: 16px; margin-bottom: 20px;">ئایا دەتەوێت ئەمە بسڕیتەوە؟</p>
+            <p id="confirmMessage" style="color: #666; font-size: 16px; margin-bottom: 20px; white-space: pre-wrap;"></p>
             <div style="display: flex; gap: 10px;">
-                <button id="confirmYesBtn" class="action-btn" style="flex: 1; background-color: #e74c3c;">بەڵێ، بیسڕەوە</button>
+                <button id="confirmYesBtn" class="action-btn" style="flex: 1; background-color: #e74c3c;">بەڵێ، دڵنیام</button>
                 <button onclick="closeModal('customConfirmModal')" class="action-btn" style="flex: 1; background-color: #95a5a6;">نەخێر</button>
             </div>
         </div>
     </div>
 
-<div id="specificHistoryModal" class="modal">
+    <div id="specificHistoryModal" class="modal">
         <div class="modal-content" style="background-color: #f4f7f6;">
             <span class="close-modal" onclick="closeModal('specificHistoryModal')">&times;</span>
-            <h2 style="border-bottom: 2px solid #8e44ad; padding-bottom: 10px; color: #8e44ad;">مێژووی تایبەتی بەخشەر</h2>
-            
-            <label>ناوی بەخشەرەکە هەڵبژێرە:</label>
-            <select id="specificDonorSelect" onchange="loadSpecificDonorData()" style="width: 100%; padding: 10px; margin-bottom: 20px; font-family: inherit;">
-                <option value="">چاوەڕوان بە...</option>
-            </select>
-
+            <h2 style="border-bottom: 2px solid #8e44ad; padding-bottom: 10px; color: #8e44ad;">مێژووی تایبەتی مرۆڤدۆست</h2>
+            <label>ناوی مرۆڤدۆستەکە هەڵبژێرە:</label>
+            <select id="specificDonorSelect" onchange="loadSpecificDonorData()" style="width: 100%; padding: 10px; margin-bottom: 20px; font-family: inherit;"><option value="">چاوەڕوان بە...</option></select>
             <div class="totals-container" id="specificTotals" style="display: none;">
-                <div class="total-card" style="border-color: #27ae60;">
-                    <p style="margin:0; color:#555; font-weight:bold;">کۆی هێنراو</p>
-                    <h3 id="specTotalIn" style="color: #27ae60;">0</h3>
-                </div>
-                <div class="total-card" style="border-color: #e74c3c;">
-                    <p style="margin:0; color:#555; font-weight:bold;">کۆی خەرجکراو لە پڕۆژە</p>
-                    <h3 id="specTotalOut" style="color: #e74c3c;">0</h3>
-                </div>
-                <div class="total-card" style="border-color: #f39c12;">
-                    <p style="margin:0; color:#555; font-weight:bold;">کۆی پارەی ماوەتەوە</p>
-                    <h3 id="specRemaining" style="color: #f39c12;">0</h3>
-                </div>
+                <div class="total-card" style="border-color: #27ae60;"><p style="margin:0; color:#555; font-weight:bold;">کۆی هێنراو</p><h3 id="specTotalIn" style="color: #27ae60;">0</h3></div>
+                <div class="total-card" style="border-color: #e74c3c;"><p style="margin:0; color:#555; font-weight:bold;">کۆی خەرجکراو لە پڕۆژە</p><h3 id="specTotalOut" style="color: #e74c3c;">0</h3></div>
+                <div class="total-card" style="border-color: #f39c12;"><p style="margin:0; color:#555; font-weight:bold;">کۆی پارەی ماوەتەوە</p><h3 id="specRemaining" style="color: #f39c12;">0</h3></div>
             </div>
-
-            <div id="specificReceiptsContainer" style="margin-top: 30px;">
-                </div>
+            <div id="specificReceiptsContainer" style="margin-top: 30px;"></div>
         </div>
     </div>
-    
+
     <div id="generalHistoryModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal('generalHistoryModal')">&times;</span>
-            <h2 style="border-bottom: 2px solid #2c3e50; padding-bottom: 10px;">مێژووی گشتی بەخشەرەکان</h2>
-            <h3 style="color: #2980b9;">داشبۆردی باڵانسی هەموو بەخشەران</h3>
-            <div class="table-responsive" style="margin-bottom: 30px;"><table id="donorBalancesTable"><thead><tr><th>ناوی بەخشەر</th><th>دراو</th><th>کۆی هێنراو</th><th>کۆی خەرجکراو</th><th>پارەی ماوە</th></tr></thead><tbody></tbody></table></div>
+            <h2 style="border-bottom: 2px solid #2c3e50; padding-bottom: 10px;">مێژووی گشتی مرۆڤدۆستەکان</h2>
+            <h3 style="color: #2980b9;">داشبۆردی باڵانسی هەموو مرۆڤدۆستان</h3>
+            <div class="table-responsive" style="margin-bottom: 30px;"><table id="donorBalancesTable"><thead><tr><th>ناوی مرۆڤدۆست</th><th>دراو</th><th>کۆی هێنراو</th><th>کۆی خەرجکراو</th><th>پارەی ماوە</th></tr></thead><tbody></tbody></table></div>
             <h3 style="color: #c0392b;">مێژووی خەرجکردنی پارەکان لە پڕۆژە</h3>
-            <div class="table-responsive" style="margin-bottom: 30px;"><table id="donorExpensesHistoryTable"><thead><tr><th>ناوی بەخشەر</th><th>بڕی خەرجکراو</th><th>لە کام پڕۆژە؟</th><th>بەروار و کات</th></tr></thead><tbody></tbody></table></div>
+            <div class="table-responsive" style="margin-bottom: 30px;"><table id="donorExpensesHistoryTable"><thead><tr><th>ناوی مرۆڤدۆست</th><th>بڕی خەرجکراو</th><th>لە کام پڕۆژە؟</th><th>بەروار و کات</th></tr></thead><tbody></tbody></table></div>
             <h3 style="color: #27ae60;">مێژووی هاتنی پارەکان</h3>
-            <div class="table-responsive"><table id="donationsHistoryTable"><thead><tr><th>ناوی بەخشەر</th><th>بڕی پارە</th><th>بۆ کام پڕۆژە؟</th><th>بەدەستی کێ؟</th><th>بەروار و کات</th></tr></thead><tbody></tbody></table></div>
+            <div class="table-responsive"><table id="donationsHistoryTable"><thead><tr><th>ناوی مرۆڤدۆست</th><th>بڕی پارە</th><th>جۆری پارە</th><th>بۆ کام پڕۆژە؟</th><th>بەروار و کات</th></tr></thead><tbody></tbody></table></div>
         </div>
     </div>
 
-    <div id="receiptTemplate" style="display: none; padding: 40px; background: white; width: 700px; border: 2px solid #2c3e50; border-radius: 10px; font-family: 'NRT', Tahoma, Arial, sans-serif; direction: rtl;">
-        <div style="text-align: center; border-bottom: 2px solid #3498db; padding-bottom: 20px; margin-bottom: 20px;">
-            <h1 style="color: #2c3e50; margin: 0; font-size: 32px;">ڕێکخراوی خێرخوازی</h1>
-            <p style="color: #7f8c8d; margin: 5px 0 0 0; font-size: 18px;">وەسڵی وەرگرتنی پارە (فەرمی)</p>
+    <div id="receiptTemplate" style="display: none; padding: 40px; background: #ffffff; width: 800px; font-family: 'NRT', Tahoma, Arial, sans-serif; direction: rtl; color: #333;">
+        <!-- سەرەدێڕ و لۆگۆ -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #27ae60; padding-bottom: 20px; margin-bottom: 30px;">
+            <div>
+                <!-- ناوی ڕێکخراو بچووک کرایەوە بۆ 28px و ڕەنگەکەی گۆڕدرا بۆ #0096FF -->
+                <h1 style="color: #0096FF; margin: 0; font-size: 28px;">ڕێکخراوی مرۆڤدۆستان</h1>
+                <p id="recSubtitle" style="color: #7f8c8d; margin: 5px 0 0 0; font-size: 18px;">وەسڵی فەرمی و ڕاپۆرتی خەرجییەکان</p>
+            </div>
+            <div style="text-align: left; background: #f4f6f7; padding: 15px; border-radius: 8px;">
+                <p style="margin: 0; font-weight: bold; font-size: 16px; color: #2c3e50;">بەروار: <span id="recDate" style="color: #7f8c8d;"></span></p>
+                <p style="margin: 5px 0 0 0; font-weight: bold; font-size: 16px; color: #2c3e50;">ژ.وەسڵ: <span id="recId" style="color: #7f8c8d;"></span></p>
+            </div>
         </div>
-        <table style="width: 100%; border-collapse: collapse; font-size: 20px; line-height: 2;">
-            <tr><td style="font-weight: bold; width: 35%; color: #34495e;">ژمارەی وەسڵ:</td><td id="recId"></td></tr>
-            <tr><td style="font-weight: bold; color: #34495e;">ناوی بەخشەر:</td><td id="recName" style="font-weight: bold;"></td></tr>
-            <tr><td style="font-weight: bold; color: #34495e;">بڕی پارە:</td><td id="recAmount" style="color: #27ae60; font-weight: bold; direction: ltr; text-align: right;"></td></tr>
-            <tr><td style="font-weight: bold; color: #34495e;">پڕۆژە / سندووق:</td><td id="recProject"></td></tr>
-            <tr><td style="font-weight: bold; color: #34495e;">بەروار:</td><td id="recDate"></td></tr>
-        </table>
-        <div style="margin-top: 60px; display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; color: #2c3e50;">
-            <div style="text-align: center; border-top: 1px dashed #333; padding-top: 10px; width: 200px;">واژۆی ژمێریار</div>
-            <div style="text-align: center; border-top: 1px dashed #333; padding-top: 10px; width: 200px;">مۆری ڕێکخراو</div>
+
+        <!-- زانیاری مرۆڤدۆست و بڕی پارە -->
+        <div style="background: #f8f9fa; padding: 25px; border-radius: 10px; border: 1px solid #e0e6ed; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3 style="margin: 0 0 10px 0; color: #34495e; font-size: 24px;">بەڕێز / <span id="recName" style="color: #27ae60;"></span></h3>
+                <p style="margin: 0; font-size: 16px; color: #555;">پڕۆژەی مەبەست: <strong id="recProject" style="color:#2c3e50;"></strong> | جۆر: <strong id="recDonationType" style="color:#8e44ad;"></strong></p>
+            </div>
+            <div style="text-align: left; border-right: 2px solid #ddd; padding-right: 25px;">
+                <p style="margin: 0; font-size: 16px; color: #7f8c8d;">کۆی گشتی بەخشراو</p>
+                <h2 style="margin: 5px 0 0 0; color: #27ae60; font-size: 32px; direction: ltr;" id="recAmount"></h2>
+            </div>
+        </div>
+
+        <!-- خشتەی خەرجییەکان خرایە ناو div ێک بۆ ئەوەی بتوانین کۆنتڕۆڵی دەرکەوتنی بکەین -->
+        <div id="expenseSectionContainer">
+            <h3 style="color: #2c3e50; margin-bottom: 15px; border-bottom: 2px dashed #bdc3c7; padding-bottom: 10px; display: inline-block;">وردەکاری خەرجکردنی ئەم پارەیە:</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px; font-size: 16px;">
+                <thead>
+                    <tr style="background-color: #2c3e50; color: white;">
+                        <th style="padding: 12px; text-align: right; border-radius: 0 8px 0 0;">هۆکاری خەرجی / پڕۆژە</th>
+                        <th style="padding: 12px; text-align: center;">بەروار</th>
+                        <th style="padding: 12px; text-align: left; border-radius: 8px 0 0 0;">بڕی خەرجکراو</th>
+                    </tr>
+                </thead>
+                <tbody id="recExpensesBody">
+                    <!-- لێرەدا خشتەکە پڕدەکرێتەوە -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- شوێنی واژۆ -->
+        <div style="display: flex; justify-content: space-around; margin-top: 60px;">
+            <div style="text-align: center;">
+                <div style="border-bottom: 1.5px dashed #333; width: 200px; margin-bottom: 10px;"></div>
+                <strong style="color: #2c3e50;">واژۆی ژمێریار</strong>
+            </div>
+            <div style="text-align: center;">
+                <div style="border-bottom: 1.5px dashed #333; width: 200px; margin-bottom: 10px;"></div>
+                <!-- مۆری ڕێکخراو گۆڕدرا بۆ واژۆ -->
+                <strong style="color: #2c3e50;">واژۆ</strong>
+            </div>
         </div>
     </div>
 
     <script src="js/menu.js"></script>
     <script type="module" src="js/donors.js"></script>
+    <script type="module" src="js/auth.js"></script>
 </body>
 </html>

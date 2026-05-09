@@ -1,14 +1,10 @@
 import { db } from './firebase-config.js';
-import { collection, addDoc, getDocs, doc, setDoc, updateDoc, increment, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { collection, addDoc, getDocs, doc, setDoc, updateDoc, increment, serverTimestamp, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-// ==========================================
-// فەنکشنەکانی پەیامە مۆدێرنەکان 
-// ==========================================
 window.customAlert = function(message, type = "success") {
     const titleEl = document.getElementById('alertTitle');
     const iconEl = document.getElementById('alertIcon');
     const borderEl = document.getElementById('alertModalBorder');
-    
     document.getElementById('alertMessage').innerText = message;
     
     if (type === "success") {
@@ -33,14 +29,8 @@ document.getElementById('confirmYesBtn').onclick = () => {
     if (currentConfirmCallback) currentConfirmCallback();
 };
 
-window.closeModal = function(id) {
-    document.getElementById(id).style.display = 'none';
-};
+window.closeModal = function(id) { document.getElementById(id).style.display = 'none'; };
 
-
-// ==========================================
-// هێنانەوەی زانیارییەکان و وەسڵەکان
-// ==========================================
 async function loadDonors() {
     const select = document.getElementById('sponsorName');
     select.innerHTML = '<option value="">هەڵبژێرە...</option>';
@@ -122,9 +112,6 @@ window.checkCurrencyMatch = function() {
     }
 };
 
-// ==========================================
-// فۆڕم و کردارەکان
-// ==========================================
 document.getElementById('kafalaForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -135,144 +122,102 @@ document.getElementById('kafalaForm').addEventListener('submit', async (e) => {
 
     const beneficiaryName = document.getElementById('beneficiaryName').value;
     const totalAmount = parseFloat(document.getElementById('totalAmount').value);
-    const monthlyDeduction = parseFloat(document.getElementById('monthlyDeduction').value);
+    const kafalaDuration = parseInt(document.getElementById('kafalaDuration').value);
     const kafalaCurrency = document.getElementById('currency').value;
     
     const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 0;
 
     if (!receiptId) { customAlert("تکایە وەسڵێک هەڵبژێرە.", "warning"); return; }
 
-    try {
-        await addDoc(collection(db, "kafala_contracts"), {
-            sponsorName: sponsorName,
-            incomeId: receiptId,
-            receiptCurrency: receiptCurrency,
-            beneficiaryName: beneficiaryName,
-            totalAmount: totalAmount,
-            currentBalance: totalAmount, 
-            monthlyDeduction: monthlyDeduction,
-            currency: kafalaCurrency, 
-            exchangeRate: exchangeRate, 
-            status: 'active',
-            timestamp: serverTimestamp()
-        });
-        
-        customAlert("جزدانی کەفالەتەکە بە سەرکەوتوویی دروست کرا!", "success");
-        document.getElementById('kafalaForm').reset();
-        document.getElementById('sponsorReceipt').innerHTML = '<option value="">تکایە سەرەتا بەخشەر هەڵبژێرە...</option>';
-        document.getElementById('exchangeRateDiv').style.display = 'none';
-        loadKafalaContracts(); 
-    } catch (error) {
-        console.error("Error:", error);
-        customAlert("کێشەیەک ڕوویدا لە دروستکردنی کەفالەتەکە.", "error");
+    let amountToDeductFromReceipt = totalAmount;
+    if (receiptCurrency !== kafalaCurrency && exchangeRate > 0) {
+        if (kafalaCurrency === 'IQD' && receiptCurrency === 'USD') {
+            amountToDeductFromReceipt = totalAmount / (exchangeRate / 100);
+        } else if (kafalaCurrency === 'USD' && receiptCurrency === 'IQD') {
+            amountToDeductFromReceipt = totalAmount * (exchangeRate / 100);
+        }
     }
-});
 
-async function loadKafalaContracts() {
-    const tableBody = document.querySelector('#kafalaTable tbody');
-    tableBody.innerHTML = ''; 
-
-    try {
-        const querySnapshot = await getDocs(collection(db, "kafala_contracts"));
-        
-        querySnapshot.forEach((documentSnapshot) => {
-            const data = documentSnapshot.data();
-            const docId = documentSnapshot.id;
-            
-            const monthsLeft = Math.floor(data.currentBalance / data.monthlyDeduction);
-            
-            let rowClass = '';
-            let alertText = '';
-            let btnDisabled = '';
-
-            if (monthsLeft <= 1 && monthsLeft > 0) {
-                rowClass = 'danger-row';
-                alertText = '<br><span class="danger-text">⚠️ کاتی نوێکردنەوەیەتی!</span>';
-            } else if (monthsLeft === 0) {
-                rowClass = 'danger-row';
-                alertText = '<br><span class="danger-text">❌ پارە نەماوە</span>';
-                btnDisabled = 'disabled'; 
-            }
-
-            const incomeIdStr = data.incomeId || "none";
-            const recCurrency = data.receiptCurrency || data.currency;
-            const exRate = data.exchangeRate || 0;
-
-            const row = `
-                <tr class="${rowClass}">
-                    <td>${data.sponsorName}</td>
-                    <td>${data.beneficiaryName}</td>
-                    <td dir="ltr"><strong>${data.currentBalance} ${data.currency}</strong></td>
-                    <td dir="ltr">${data.monthlyDeduction} ${data.currency}</td>
-                    <td>${monthsLeft} مانگ ${alertText}</td>
-                    <td>
-                        <button class="btn-deduct" ${btnDisabled} onclick="deductMonthly('${docId}', ${data.currentBalance}, ${data.monthlyDeduction}, '${data.sponsorName}', '${data.currency}', '${data.beneficiaryName}', '${incomeIdStr}', '${recCurrency}', ${exRate})">
-                            بڕینی مانگی نوێ
-                        </button>
-                    </td>
-                </tr>
-            `;
-            tableBody.innerHTML += row;
-        });
-    } catch (error) { console.error("Error loading kafala:", error); }
-}
-
-window.deductMonthly = async function(docId, currentBalance, monthlyDeduction, sponsorName, kafalaCurrency, beneficiaryName, incomeId, receiptCurrency, exchangeRate) {
-    customConfirm(`دڵنیایت دەتەوێت پارەی ئەم مانگە (${monthlyDeduction} ${kafalaCurrency}) ببڕیت؟\nئەمە ڕاستەوخۆ لە وەسڵەکەی بەخشەر کەم دەبێتەوە.`, async () => {
+    customConfirm(`ئایا دڵنیایت؟\n\nبڕی ${totalAmount} ${kafalaCurrency} بە یەکجار و ڕاستەوخۆ لە وەسڵی مرۆڤدۆستەکە دەبڕدرێت بۆ کەفالەتی (${kafalaDuration} مانگ).`, async () => {
         try {
-            const newBalance = currentBalance - monthlyDeduction;
-            let amountToDeductFromReceipt = monthlyDeduction;
-            
-            if (receiptCurrency !== kafalaCurrency && exchangeRate > 0) {
-                if (kafalaCurrency === 'IQD' && receiptCurrency === 'USD') {
-                    amountToDeductFromReceipt = monthlyDeduction / (exchangeRate / 100);
-                } else if (kafalaCurrency === 'USD' && receiptCurrency === 'IQD') {
-                    amountToDeductFromReceipt = monthlyDeduction * (exchangeRate / 100);
-                }
-            }
-            
-            const kafalaRef = doc(db, "kafala_contracts", docId);
-            await updateDoc(kafalaRef, { currentBalance: newBalance });
-
-            await addDoc(collection(db, "kafala_transactions"), {
-                contractId: docId,
-                amountDeducted: monthlyDeduction,
+            await addDoc(collection(db, "kafala_contracts"), {
                 sponsorName: sponsorName,
                 beneficiaryName: beneficiaryName,
+                totalAmount: totalAmount,
+                durationMonths: kafalaDuration,
                 currency: kafalaCurrency,
+                exchangeRate: exchangeRate,
+                receiptCurrency: receiptCurrency,
+                amountDeductedFromReceipt: amountToDeductFromReceipt,
+                status: 'active',
                 timestamp: serverTimestamp()
             });
-
+            
             const donorRef = doc(db, "donor_balances", sponsorName);
             await setDoc(donorRef, {
                 [`spent_${receiptCurrency}`]: increment(amountToDeductFromReceipt),
                 [`remaining_${receiptCurrency}`]: increment(-amountToDeductFromReceipt)
             }, { merge: true });
 
-            if (incomeId !== "none") {
-                const incomeRef = doc(db, "incomes", incomeId);
-                await updateDoc(incomeRef, { remainingAmount: increment(-amountToDeductFromReceipt) });
+            if (receiptId !== "none") {
+                const incomeRef = doc(db, "incomes", receiptId);
+                await updateDoc(incomeRef, {
+                    remainingAmount: increment(-amountToDeductFromReceipt)
+                });
+            }
+
+            let projectDesc = `کەفالەتی: ${beneficiaryName} (بۆ ماوەی ${kafalaDuration} مانگ)`;
+            if (exchangeRate > 0 && receiptCurrency !== kafalaCurrency) {
+                projectDesc += ` | بنەڕەتی: ${totalAmount} ${kafalaCurrency} (بە گۆڕینەوەی: ${exchangeRate})`;
             }
 
             await addDoc(collection(db, "donor_expenses"), {
                 donorName: sponsorName,
-                projectName: `کەفالەتی: ${beneficiaryName}` + (exchangeRate > 0 ? ` (بە گۆڕینەوەی ${exchangeRate})` : ''),
+                projectName: projectDesc,
                 amount: amountToDeductFromReceipt,
                 currency: receiptCurrency,
-                incomeId: incomeId,
+                incomeId: receiptId,
                 timestamp: serverTimestamp()
             });
-
-            customAlert(`پارەکە بە سەرکەوتوویی بڕدرا!\n\nزانیاری:\nبڕی کەفالەت: ${monthlyDeduction} ${kafalaCurrency}\nبڕی بڕدراو لە وەسڵ: ${amountToDeductFromReceipt.toFixed(2)} ${receiptCurrency}`, "success");
-            loadKafalaContracts(); 
+            
+            customAlert(`کەفالەتەکە بە سەرکەوتوویی تۆمارکرا!\nبڕی بڕدراو لە وەسڵ: ${amountToDeductFromReceipt.toFixed(2)} ${receiptCurrency}`, "success");
+            
+            document.getElementById('kafalaForm').reset();
+            document.getElementById('sponsorReceipt').innerHTML = '<option value="">تکایە سەرەتا مرۆڤدۆستێک هەڵبژێرە...</option>';
+            document.getElementById('exchangeRateDiv').style.display = 'none';
         } catch (error) {
-            console.error("Error updating balance:", error);
-            customAlert("کێشەیەک ڕوویدا لە کاتی بڕینی پارەکە.", "error");
+            console.error("Error:", error);
+            customAlert("کێشەیەک ڕوویدا لە تۆمارکردنی کەفالەتەکە.", "error");
         }
+    });
+});
+
+let kafalaUnsub = null;
+window.loadKafalaContracts = function() {
+    if(kafalaUnsub) kafalaUnsub();
+    const q = query(collection(db, "kafala_contracts"), orderBy("timestamp", "desc"));
+    kafalaUnsub = onSnapshot(q, (querySnapshot) => {
+        const tableBody = document.querySelector('#kafalaTable tbody');
+        tableBody.innerHTML = ''; 
+        querySnapshot.forEach((documentSnapshot) => {
+            const data = documentSnapshot.data();
+            let dateStr = data.timestamp ? data.timestamp.toDate().toLocaleDateString('ku-IQ') : "نەزانراو";
+
+            const row = `
+                <tr>
+                    <td><strong>${data.sponsorName}</strong></td>
+                    <td>${data.beneficiaryName}</td>
+                    <td dir="ltr" style="color: #27ae60; font-weight: bold;">${data.totalAmount} ${data.currency}</td>
+                    <td>${data.durationMonths} مانگ</td>
+                    <td dir="ltr">${dateStr}</td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
     });
 };
 
 window.onload = () => {
     loadDonors();
-    loadKafalaContracts();
+    window.loadKafalaContracts();
 };

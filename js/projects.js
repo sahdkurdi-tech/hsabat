@@ -1,7 +1,9 @@
 import { db } from './firebase-config.js';
-import { collection, addDoc, getDocs, doc, setDoc, updateDoc, increment, serverTimestamp, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { collection, addDoc, getDocs, doc, setDoc, updateDoc, increment, serverTimestamp, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 let loadedProjects = {}; 
+let projectsUnsub = null;
+let projectDonorsUnsub = null;
 
 document.getElementById('projectForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -16,21 +18,20 @@ document.getElementById('projectForm').addEventListener('submit', async (e) => {
         });
         alert("دۆسیەی پڕۆژەکە بە سەرکەوتوویی کرایەوە!");
         document.getElementById('projectForm').reset();
-        loadProjects(); 
     } catch (error) { console.error(error); }
 });
 
-async function loadProjects() {
+window.loadProjects = function() {
     const tableBody = document.querySelector('#projectsTable tbody');
     const completedTableBody = document.querySelector('#completedProjectsTable tbody');
     const spendSelect = document.getElementById('spendProjectId');
     
-    tableBody.innerHTML = ''; completedTableBody.innerHTML = '';
-    spendSelect.innerHTML = '<option value="">تکایە پڕۆژەیەک هەڵبژێرە...</option>';
-    loadedProjects = {}; 
+    if(projectsUnsub) projectsUnsub();
+    projectsUnsub = onSnapshot(collection(db, "projects"), (querySnapshot) => {
+        tableBody.innerHTML = ''; completedTableBody.innerHTML = '';
+        spendSelect.innerHTML = '<option value="">تکایە پڕۆژەیەک هەڵبژێرە...</option>';
+        loadedProjects = {}; 
 
-    try {
-        const querySnapshot = await getDocs(collection(db, "projects"));
         querySnapshot.forEach((documentSnapshot) => {
             const data = documentSnapshot.data();
             const id = documentSnapshot.id;
@@ -41,7 +42,7 @@ async function loadProjects() {
                 completedTableBody.innerHTML += `<tr><td>${data.name}</td><td dir="ltr">${data.spentAmount.toFixed(2)} ${data.currency}</td><td dir="ltr">${dateStr}</td><td><button class="btn-history" onclick="viewProjectHistory('${id}', '${data.name}')">مێژووی تەواو</button></td></tr>`;
             } else {
                 const availableBalance = data.collectedAmount - data.spentAmount; 
-                let fundStatus = availableBalance <= 0 && data.collectedAmount > 0 ? '<span class="locked">قوفڵ دراوە (سفرە)</span>' : (availableBalance > 0 ? '<span class="open">پارەی تێدایە</span>' : 'چاوەڕوانی بەخشەر...');
+                let fundStatus = availableBalance <= 0 && data.collectedAmount > 0 ? '<span class="locked">قوفڵ دراوە (سفرە)</span>' : (availableBalance > 0 ? '<span class="open">پارەی تێدایە</span>' : 'چاوەڕوانی مرۆڤدۆست...');
                 
                 const remainingToComplete = data.estimatedCost - data.spentAmount;
                 let remainingText = remainingToComplete > 0 ? `<span style="color: #d35400; font-weight:bold;">${remainingToComplete.toFixed(2)} ${data.currency}</span>` : `<span style="color: #27ae60; font-weight:bold;">ئامانج پێکا</span>`;
@@ -66,41 +67,37 @@ async function loadProjects() {
                 spendSelect.appendChild(option);
             }
         });
-    } catch (error) { console.error(error); }
-}
+    }, (error) => console.error(error));
+};
 
-// *** گۆڕانکاری گەورە: هێنانەوەی لیستەکە بەپێی "وەسڵ" لەبری تەنیا ناو ***
-window.loadProjectDonors = async function() {
+window.loadProjectDonors = function() {
     const donorSelect = document.getElementById('spendDonorName');
-    donorSelect.innerHTML = '<option value="">چاوەڕوان بە...</option>';
-
-    try {
-        const snap = await getDocs(collection(db, "incomes"));
+    
+    if(projectDonorsUnsub) projectDonorsUnsub();
+    projectDonorsUnsub = onSnapshot(collection(db, "incomes"), (snap) => {
+        donorSelect.innerHTML = '<option value="">چاوەڕوان بە...</option>';
         donorSelect.innerHTML = '<option value="general|same|none">پارەی گشتی سندووقەکە</option>';
         
         snap.forEach((doc) => {
             const data = doc.data();
-            // پارەی ماوە لەم وەسڵە تایبەتەدا
             let rem = data.remainingAmount !== undefined ? data.remainingAmount : data.amount;
             
             if (rem > 0) {
                 const option = document.createElement("option");
                 let dateStr = data.timestamp ? data.timestamp.toDate().toLocaleDateString('ku-IQ') : "";
                 
-                // بەهاکە ئایدی وەسڵەکەش هەڵدەگرێت بۆ ئەوەی بزانین لە کامە دەبڕین
                 option.value = `${data.donorName}|${data.currency}|${doc.id}`;
                 option.dataset.currency = data.currency;
                 
-                // شێوەی پیشاندان لە درۆپداونەکە: ناو - بڕی ماوە (بەروار)
                 option.text = `${data.donorName} - ماوە: ${rem.toFixed(2)} ${data.currency} (وەسڵی: ${dateStr})`;
                 donorSelect.appendChild(option);
             }
         });
         checkProjectCurrency(); 
-    } catch (error) { console.error(error); }
+    }, (error) => console.error(error));
 };
 
-window.onload = () => { loadProjects(); loadProjectDonors(); };
+window.onload = () => { window.loadProjects(); window.loadProjectDonors(); };
 
 window.checkProjectCurrency = function() {
     const projectId = document.getElementById('spendProjectId').value;
@@ -147,13 +144,13 @@ document.getElementById('spendProjectForm').addEventListener('submit', async (e)
     
     let spendDonorName = "پارەی گشتی سندووقەکە";
     let donorCurrency = loadedProjects[projectId]; 
-    let incomeId = "none"; // ئایدی وەسڵەکە
+    let incomeId = "none";
 
     if (donorValue && donorValue !== "general|same|none") {
         const parts = donorValue.split('|');
         spendDonorName = parts[0];
         donorCurrency = parts[1]; 
-        incomeId = parts[2]; // جیاکردنەوەی ئایدی وەسڵەکە
+        incomeId = parts[2]; 
     }
 
     if (!projectId) { alert("تکایە پڕۆژەیەک هەڵبژێرە!"); return; }
@@ -174,14 +171,12 @@ document.getElementById('spendProjectForm').addEventListener('submit', async (e)
         await updateDoc(projectRef, { spentAmount: increment(finalAmountForProject) });
 
         if (spendDonorName !== "پارەی گشتی سندووقەکە") {
-            // کەمکردنەوە لە کۆی گشتی بەخشەرەکە
             const donorRef = doc(db, "donor_balances", spendDonorName);
             await setDoc(donorRef, {
                 [`spent_${donorCurrency}`]: increment(finalAmountForDonor),
                 [`remaining_${donorCurrency}`]: increment(-finalAmountForDonor)
             }, { merge: true });
 
-            // کەمکردنەوە لە وەسڵە تایبەتەکە (ئەمە پارەکە لە کارتەکەش کەم دەکاتەوە)
             if (incomeId !== "none") {
                 const incomeRef = doc(db, "incomes", incomeId);
                 await updateDoc(incomeRef, {
@@ -189,13 +184,12 @@ document.getElementById('spendProjectForm').addEventListener('submit', async (e)
                 });
             }
 
-            // پاشەکەوتکردنی مێژووی خەرجییەکە و بەستنەوەی بە وەسڵەکەوە
             await addDoc(collection(db, "donor_expenses"), {
                 donorName: spendDonorName,
                 projectName: projectName,
                 amount: finalAmountForDonor,
                 currency: donorCurrency,
-                incomeId: incomeId, // بەستنەوە بە وەسڵەوە
+                incomeId: incomeId, 
                 timestamp: serverTimestamp()
             });
         }
@@ -203,9 +197,6 @@ document.getElementById('spendProjectForm').addEventListener('submit', async (e)
         alert(`پارەکە خەرج کرا لەسەر حیسابی (${spendDonorName})!`);
         document.getElementById('spendProjectForm').reset();
         document.getElementById('projectExchangeRateDiv').style.display = 'none';
-        loadProjects();
-        loadProjectDonors();
-
     } catch (error) { console.error(error); alert("کێشەیەک ڕوویدا لە کاتی خەرجکردندا."); }
 });
 
@@ -252,7 +243,6 @@ window.markAsCompleted = async function(projectId) {
             const projectRef = doc(db, "projects", projectId);
             await updateDoc(projectRef, { status: 'completed', completedAt: serverTimestamp() });
             alert("پڕۆژەکە گواسترایەوە بۆ ئەرشیف!");
-            loadProjects();
         } catch (error) { console.error(error); }
     }
 };

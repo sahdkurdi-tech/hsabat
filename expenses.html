@@ -7,7 +7,19 @@
     <link rel="stylesheet" href="css/styles.css">
     <style>
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
-        .modal-content { background-color: #f9f9f9; margin: 5% auto; padding: 25px; border-radius: 8px; width: 95%; max-width: 1000px; max-height: 90vh; overflow-y: auto; direction: rtl; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+.modal-content { 
+    background-color: #f9f9f9; 
+    margin: 30px auto; 
+    padding: 25px; 
+    border-radius: 8px; 
+    width: 95%; 
+    max-width: 1000px; 
+    max-height: calc(100vh - 60px); 
+    overflow-y: auto; 
+    direction: rtl; 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
+    box-sizing: border-box; 
+}
         .close-modal { float: left; font-size: 32px; cursor: pointer; color: #555; }
         .close-modal:hover { color: #e74c3c; }
         .history-btn { padding: 15px; font-size: 18px; font-weight: bold; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; color: white; width: 100%; transition: 0.3s; }
@@ -28,24 +40,26 @@
     <div class="navbar">
         <div class="navbar-brand">MROVDOSTAN</div>
         <div class="desktop-menu">
-            <a href="donors.html">بەخشەران</a>
+            <a href="donors.html">مرۆڤدۆستان</a>
             <a href="advances.html">سلفە و پاکتاوکردن</a>
             <a href="projects.html">پڕۆژەکان</a>
             <a href="kafala.html">کەفالەت</a>
             <a href="expenses.html" class="active">سەرفی گشتی</a>
             <a href="reports.html">ڕاپۆرتەکان</a>
+            <a href="#" onclick="logoutUser()" style="background-color: #e74c3c; margin-right: 15px;">دەرچوون ⍈</a>
         </div>
         <button class="mobile-menu-btn" onclick="openMenu()">☰</button>
     </div>
 
     <div id="slideMenu" class="slide-menu">
         <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
-        <a href="donors.html">بەخشەران</a>
+        <a href="donors.html">مرۆڤدۆستان</a>
         <a href="advances.html">سلفە و پاکتاوکردن</a>
         <a href="projects.html">پڕۆژەکان</a>
         <a href="kafala.html">کەفالەت</a>
         <a href="expenses.html">سەرفی گشتی</a>
         <a href="reports.html">ڕاپۆرتەکان</a>
+        <a href="#" onclick="logoutUser()" style="background-color: #e74c3c; margin-right: 15px;">دەرچوون ⍈</a>
     </div>
     
     <div id="overlay" class="overlay"></div>
@@ -83,16 +97,16 @@
                 <button type="button" class="icon-btn btn-delete" onclick="deleteReason()">🗑️ سڕینەوەی دیاریکراو</button>
             </div>
 
-            <label>لەسەر حیسابی کێ خەرج دەکرێت؟ (ناوی بەخشەر):</label>
+            <label>لەسەر حیسابی کێ خەرج دەکرێت؟ (ناوی مرۆڤدۆست):</label>
             <select id="donorSelect" required onchange="loadDonorReceipts()">
                 <option value="general_fund">سندووقی گشتی (حیسابی هیچ کەسێک نییە)</option>
             </select>
-            <small style="color: #e74c3c; display: block; margin-bottom: 15px;">تێبینی: ئەگەر بەخشەرێک هەڵبژێریت، پارەکە ڕاستەوخۆ لە وەسڵەکەی دەبڕدرێت.</small>
+            <small style="color: #e74c3c; display: block; margin-bottom: 15px;">تێبینی: ئەگەر مرۆڤدۆستێک هەڵبژێریت، پارەکە ڕاستەوخۆ لە وەسڵەکەی دەبڕدرێت.</small>
 
             <div id="receiptSection" style="display: none; background: #f4f6f7; padding: 15px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #dcdde1;">
                 <label style="color: #2980b9;">کام وەسڵەی بەکاردەهێنیت؟:</label>
                 <select id="donorReceipt" onchange="checkCurrencyMatch()" style="margin-bottom: 15px;">
-                    <option value="">تکایە سەرەتا بەخشەر هەڵبژێرە...</option>
+                    <option value="">تکایە سەرەتا مرۆڤدۆستێک هەڵبژێرە...</option>
                 </select>
 
                 <div id="exchangeRateDiv" style="display:none; background: #fff3cd; padding: 10px; border-radius: 6px; border: 1px solid #ffe69c;">
@@ -172,5 +186,6 @@
 
     <script src="js/menu.js"></script>
     <script type="module" src="js/expenses.js"></script>
+    <script type="module" src="js/auth.js"></script>
 </body>
 </html>

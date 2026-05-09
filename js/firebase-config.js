@@ -1,20 +1,21 @@
-// js/firebase-config.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCMgwV15hUX0kruGcSZ48zTRCYCG1dUf_k",
-  authDomain: "dynamic-form-builder-51249.firebaseapp.com",
-  projectId: "dynamic-form-builder-51249",
-  storageBucket: "dynamic-form-builder-51249.firebasestorage.app",
-  messagingSenderId: "451980092153",
-  appId: "1:451980092153:web:aaeb3f6819e4639a3bb828"
+  apiKey: "AIzaSyD75LsGRt5asgP-UmUNHC1cd98mwkvLOrU",
+  authDomain: "profile-21fde.firebaseapp.com",
+  projectId: "profile-21fde",
+  storageBucket: "profile-21fde.firebasestorage.app",
+  messagingSenderId: "96182241271",
+  appId: "1:96182241271:web:14b4dff180faeae71fd0f2"
 };
 
-// Initialize Firebase
+// دامەزراندنی فایەربەیس
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app); // بۆ هەڵگرتنی داتا (وەسڵ، بەخشەر، پڕۆژە)
-const storage = getStorage(app); // بۆ ئەپلۆدکردنی وێنەی وەسڵ و مزگەوتەکان
+const db = getFirestore(app);
+const storage = getStorage(app);
+const auth = getAuth(app);
 
-export { db, storage };
+export { db, storage, auth };

@@ -7,7 +7,19 @@
     <link rel="stylesheet" href="css/styles.css">
     <style>
         .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
-        .modal-content { background-color: #fff; margin: 5% auto; padding: 25px; border-radius: 8px; width: 90%; max-width: 700px; max-height: 80vh; overflow-y: auto; direction: rtl; }
+.modal-content { 
+    background-color: #f9f9f9; 
+    margin: 30px auto; 
+    padding: 25px; 
+    border-radius: 8px; 
+    width: 95%; 
+    max-width: 1000px; 
+    max-height: calc(100vh - 60px); 
+    overflow-y: auto; 
+    direction: rtl; 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
+    box-sizing: border-box; 
+}
         .close-modal { color: #aaa; float: left; font-size: 28px; font-weight: bold; cursor: pointer; }
         .close-modal:hover { color: #e74c3c; }
         .btn-history { background-color: #f39c12; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 13px; }
@@ -20,24 +32,26 @@
     <div class="navbar">
         <div class="navbar-brand">MROVDOSTAN</div>
         <div class="desktop-menu">
-            <a href="donors.html">بەخشەران</a>
+            <a href="donors.html">مرۆڤدۆستان</a>
             <a href="advances.html">سلفە و پاکتاوکردن</a>
             <a href="projects.html" class="active">پڕۆژەکان</a>
             <a href="kafala.html">کەفالەت</a>
             <a href="expenses.html">سەرفی گشتی</a>
             <a href="reports.html">ڕاپۆرتەکان</a>
+            <a href="#" onclick="logoutUser()" style="background-color: #e74c3c; margin-right: 15px;">دەرچوون ⍈</a>
         </div>
         <button class="mobile-menu-btn" onclick="openMenu()">☰</button>
     </div>
 
     <div id="slideMenu" class="slide-menu">
         <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
-        <a href="donors.html">بەخشەران</a>
+        <a href="donors.html">مرۆڤدۆستان</a>
         <a href="advances.html">سلفە و پاکتاوکردن</a>
         <a href="projects.html">پڕۆژەکان</a>
         <a href="kafala.html">کەفالەت</a>
         <a href="expenses.html">سەرفی گشتی</a>
         <a href="reports.html">ڕاپۆرتەکان</a>
+        <a href="#" onclick="logoutUser()" style="background-color: #e74c3c; margin-right: 15px;">دەرچوون ⍈</a>
     </div>
     <div id="overlay" class="overlay"></div>
 
@@ -65,7 +79,7 @@
                 <option value="">چاوەڕوان بە...</option>
             </select>
 
-            <label>پارەی کام بەخشەر خەرج دەکەیت؟ (تەنیا ئەوانە پیشان دەدات کە پارەیان ماوە)</label>
+            <label>پارەی کام مرۆڤدۆست خەرج دەکەیت؟ (تەنیا ئەوانە پیشان دەدات کە پارەیان ماوە)</label>
             <select id="spendDonorName" required onchange="checkProjectCurrency();">
                 <option value="">چاوەڕوان بە...</option>
             </select>
@@ -83,7 +97,7 @@
                 <label style="color: #d35400;">نرخی سەرفی ئەمڕۆ (بۆ ١٠٠ دۆلار بە دینار) پێویستە:</label>
                 <input type="number" id="projectExchangeRate" placeholder="نموونە: ١٥٠٠٠٠" style="margin-bottom: 0;">
                 <small style="color: #555; display: block; margin-top: 8px;">
-                    <strong>تێبینی:</strong> سیستەمەکە خۆی بەم نرخە پارەکە دەکاتەوە بە دراوی پڕۆژەکە و دراوی بەخشەرەکە بۆ ئەوەی حیسابات بە دروستی بمێنێتەوە.
+                    <strong>تێبینی:</strong> سیستەمەکە خۆی بەم نرخە پارەکە دەکاتەوە بە دراوی پڕۆژەکە و دراوی مرۆڤدۆستەکە بۆ ئەوەی حیسابات بە دروستی بمێنێتەوە.
                 </small>
             </div>
 
@@ -133,10 +147,10 @@
             <span class="close-modal" onclick="closeHistoryModal()">&times;</span>
             <h3 id="modalProjectName" style="border-bottom: 1px solid #ddd; padding-bottom: 10px;">مێژووی پڕۆژە</h3>
             
-            <h4 style="margin-bottom: 5px; color: #27ae60;">پارە هاتووەکان (بەخشەران)</h4>
+            <h4 style="margin-bottom: 5px; color: #27ae60;">پارە هاتووەکان (مرۆڤدۆستان)</h4>
             <div class="table-responsive" style="margin-bottom: 20px;">
                 <table id="modalHistoryTable">
-                    <thead><tr><th>ناوی بەخشەر</th><th>بڕی پارە</th><th>بەروار و کات</th></tr></thead>
+                    <thead><tr><th>ناوی مرۆڤدۆست</th><th>بڕی پارە</th><th>بەروار و کات</th></tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
@@ -153,6 +167,7 @@
 
     <script src="js/menu.js"></script>
     <script type="module" src="js/projects.js"></script>
+    <script type="module" src="js/auth.js"></script>
     <script>
         function closeHistoryModal() { document.getElementById('historyModal').style.display = 'none'; }
     </script>

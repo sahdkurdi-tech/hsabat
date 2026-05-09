@@ -1,11 +1,11 @@
 import { db } from './firebase-config.js';
 import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-// دروستکردنی ڕاپۆرتی بەخشەری VIP
+// دروستکردنی ڕاپۆرتی مرۆڤدۆستی VIP
 document.getElementById('btnVipReport').addEventListener('click', async () => {
     const vipName = document.getElementById('vipNameInput').value;
     if (!vipName) {
-        alert("تکایە سەرەتا ناوی بەخشەرەکە بنووسە!");
+        alert("تکایە سەرەتا ناوی مرۆڤدۆست بنووسە!");
         return;
     }
 

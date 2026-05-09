@@ -14,12 +14,13 @@
         <div class="navbar-brand">MROVDOSTAN</div>
         
         <div class="desktop-menu">
-            <a href="donors.html">بەخشەران</a>
+            <a href="donors.html">مرۆڤدۆستان</a>
             <a href="advances.html">سلفە و پاکتاوکردن</a>
             <a href="projects.html">پڕۆژەکان</a>
             <a href="kafala.html">کەفالەت</a>
             <a href="expenses.html">سەرفی گشتی</a>
             <a href="reports.html" class="active">ڕاپۆرتەکان</a>
+            <a href="#" onclick="logoutUser()" style="background-color: #e74c3c; margin-right: 15px;">دەرچوون ⍈</a>
         </div>
         
         <button class="mobile-menu-btn" onclick="openMenu()">☰</button>
@@ -27,12 +28,13 @@
 
     <div id="slideMenu" class="slide-menu">
         <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
-        <a href="donors.html">بەخشەران</a>
+        <a href="donors.html">مرۆڤدۆستان</a>
         <a href="advances.html">سلفە و پاکتاوکردن</a>
         <a href="projects.html">پڕۆژەکان</a>
         <a href="kafala.html">کەفالەت</a>
         <a href="expenses.html">سەرفی گشتی</a>
         <a href="reports.html">ڕاپۆرتەکان</a>
+        <a href="#" onclick="logoutUser()" style="background-color: #e74c3c; margin-right: 15px;">دەرچوون ⍈</a>
     </div>
     
     <div id="overlay" class="overlay"></div>
@@ -47,9 +49,9 @@
         </div>
 
         <div class="report-card">
-            <h3>٢. ڕاپۆرتی گشتگیری بەخشەر (VIP Donor Report)</h3>
-            <p>ناوی بەخشەرێک داخڵ بکە بۆ ئەوەی تەواوی مێژووی بەخشینەکانی بە (دینار و دۆلار) بە فەرمی بۆ پرینت بکەیت.</p>
-            <input type="text" id="vipNameInput" placeholder="ناوی دەوڵەمەند / بەخشەر..." style="margin-bottom: 10px;">
+            <h3>٢. ڕاپۆرتی گشتگیری مرۆڤدۆست (VIP Donor Report)</h3>
+            <p>ناوی مرۆڤدۆستێک داخڵ بکە بۆ ئەوەی تەواوی مێژووی بەخشینەکانی بە (دینار و دۆلار) بە فەرمی بۆ پرینت بکەیت.</p>
+            <input type="text" id="vipNameInput" placeholder="ناوی دەوڵەمەند / مرۆڤدۆست..." style="margin-bottom: 10px;">
             <button class="action-btn" id="btnVipReport">ئامادەکردنی ڕاپۆرتی PDF</button>
         </div>
 
@@ -62,5 +64,6 @@
 
     <script src="js/menu.js"></script>
     <script type="module" src="js/reports.js"></script>
+    <script type="module" src="js/auth.js"></script>
 </body>
 </html>

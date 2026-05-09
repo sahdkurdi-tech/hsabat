@@ -1,9 +1,6 @@
 import { db } from './firebase-config.js';
-import { collection, addDoc, getDocs, doc, setDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy, increment, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { collection, addDoc, getDocs, doc, setDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy, increment, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-// ==========================================
-// مۆداڵەکانی ئاگادارکردنەوە
-// ==========================================
 window.customAlert = function(message, type = "success") {
     const titleEl = document.getElementById('alertTitle');
     const iconEl = document.getElementById('alertIcon');
@@ -30,9 +27,6 @@ document.getElementById('confirmYesBtn').onclick = () => { closeModal('customCon
 
 window.closeModal = function(id) { document.getElementById(id).style.display = 'none'; };
 
-// ==========================================
-// دروستکردنی کارتی هۆکارەکانی سەرفکردن
-// ==========================================
 function createRadioItem(containerId, valueInputId, textInputId, value, text) {
     const container = document.getElementById(containerId);
     const div = document.createElement('div');
@@ -108,9 +102,6 @@ window.deleteReason = async function() {
     });
 };
 
-// ==========================================
-// هێنانەوەی ناوی بەخشەرەکان و وەسڵەکانیان
-// ==========================================
 async function loadDonors() {
     const select = document.getElementById('donorSelect');
     select.innerHTML = '<option value="general_fund">سندووقی گشتی (حیسابی هیچ کەسێک نییە)</option>';
@@ -136,7 +127,7 @@ window.loadDonorReceipts = async function() {
     if (!donorName || donorName === 'general_fund') {
         receiptSection.style.display = 'none';
         document.getElementById('donorReceipt').required = false;
-        window.checkCurrencyMatch(); // بۆ شاردنەوەی خانەی نرخ
+        window.checkCurrencyMatch(); 
         return;
     }
 
@@ -200,9 +191,6 @@ window.checkCurrencyMatch = function() {
     }
 };
 
-// ==========================================
-// تۆمارکردنی خەرجی و خستنە ناو مێژوو
-// ==========================================
 document.getElementById('expenseForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -244,7 +232,6 @@ document.getElementById('expenseForm').addEventListener('submit', async (e) => {
     }
 
     try {
-        // ١. تۆمارکردن لە پەڕەی خەرجییە گشتییەکان
         await addDoc(collection(db, "general_expenses"), {
             amount: amount,
             currency: expenseCurrency,
@@ -257,7 +244,6 @@ document.getElementById('expenseForm').addEventListener('submit', async (e) => {
             timestamp: serverTimestamp()
         });
 
-        // ٢. ئەگەر بەخشەرێک دیاریکرابوو، لە باڵانس و وەسڵەکە دەبڕین
         if (donorName !== 'general_fund') {
             const donorRef = doc(db, "donor_balances", donorName);
             await setDoc(donorRef, {
@@ -265,7 +251,6 @@ document.getElementById('expenseForm').addEventListener('submit', async (e) => {
                 [`remaining_${receiptCurrency}`]: increment(-amountToDeductFromReceipt)
             }, { merge: true });
 
-            // کەمکردنەوە لە خودی وەسڵە دیاریکراوەکە
             if (receiptId !== "none") {
                 const incomeRef = doc(db, "incomes", receiptId);
                 await updateDoc(incomeRef, {
@@ -273,7 +258,6 @@ document.getElementById('expenseForm').addEventListener('submit', async (e) => {
                 });
             }
 
-            // خستنە ناو مێژووی تایبەتی بەخشەر
             await addDoc(collection(db, "donor_expenses"), {
                 donorName: donorName,
                 projectName: `سەرفی گشتی: ${reasonText} (وەرگر: ${recipientName})` + (exchangeRate > 0 ? ` (بە گۆڕینەوەی ${exchangeRate})` : ''),
@@ -292,28 +276,23 @@ document.getElementById('expenseForm').addEventListener('submit', async (e) => {
         
         document.getElementById('expenseForm').reset();
         
-        // خاوێنکردنەوەی شاشە
         document.getElementById('reasonValue').value = '';
         document.getElementById('reasonTextValue').value = '';
         document.getElementById('receiptSection').style.display = 'none';
-        loadReasons(); 
         document.getElementById('expenseDate').valueAsDate = new Date();
 
     } catch (error) { console.error("Error:", error); customAlert("کێشەیەک ڕوویدا لە تۆمارکردندا!", "error"); }
 });
 
-// ==========================================
-// مۆداڵی مێژووی خەرجییەکان
-// ==========================================
+let expenseHistoryUnsub = null;
 window.openExpenseHistory = async function() {
     document.getElementById('expenseHistoryModal').style.display = 'block';
     const tableBody = document.querySelector('#expenseHistoryTable tbody');
     tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">چاوەڕوان بە...</td></tr>';
     
-    try {
-        const q = query(collection(db, "general_expenses"), orderBy("timestamp", "desc"));
-        const snap = await getDocs(q);
-        
+    if(expenseHistoryUnsub) expenseHistoryUnsub();
+    const q = query(collection(db, "general_expenses"), orderBy("timestamp", "desc"));
+    expenseHistoryUnsub = onSnapshot(q, (snap) => {
         tableBody.innerHTML = '';
         if (snap.empty) {
             tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#999;">هیچ خەرجییەک تۆمار نەکراوە.</td></tr>';
@@ -336,7 +315,7 @@ window.openExpenseHistory = async function() {
             `;
             tableBody.innerHTML += row;
         });
-    } catch(e) { console.error(e); }
+    });
 };
 
 window.onload = () => {

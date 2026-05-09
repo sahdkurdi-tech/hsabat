@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>چوونەژوورەوە | MROVDOSTAN</title>
+    <!-- لێرەدا دەتوانیت فۆنتە لۆکاڵییەکەت بەکاربهێنیتەوە -->
+    <style>
+        @font-face {
+            font-family: 'NRT';
+            src: url('fonts/NRT-Reg.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            font-family: 'NRT', Tahoma, Arial, sans-serif;
+            background-color: #f4f7f6; /* ڕەنگێکی زۆر کاڵ و ئارامبەخش بۆ باکگراوند */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            direction: rtl;
+        }
+
+        .login-container {
+            background: #ffffff;
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 420px;
+            box-sizing: border-box;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .logo-area {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .logo-area h1 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 32px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .logo-area p {
+            color: #7f8c8d;
+            font-size: 15px;
+            margin-top: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+            text-align: right;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 1.5px solid #e0e6ed;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            background: #fcfcfc;
+            color: #2c3e50;
+        }
+
+        .form-group input:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15);
+            background: #ffffff;
+        }
+
+        .form-group input::placeholder {
+            color: #bdc3c7;
+        }
+
+        .action-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            font-family: inherit;
+        }
+
+        .action-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.25);
+        }
+
+        .action-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .error-msg {
+            background: #fdf2f2;
+            color: #e74c3c;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 25px;
+            border: 1px solid #fadbd8;
+            display: none;
+            font-weight: bold;
+        }
+
+        /* گونجاندن بۆ شاشەی بچووکتر */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 40px 25px;
+                border-radius: 0;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="logo-area">
+            <h1>MROVDOSTAN</h1>
+            <p>بەخێربێیتەوە بۆ سیستەمی بەڕێوەبردن</p>
+        </div>
+        
+        <div id="errorMsg" class="error-msg">ئیمەیڵ یان وشەی نهێنی هەڵەیە!</div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label>ئیمەیڵی کارمەند</label>
+                <input type="email" id="email" required placeholder="admin@example.com" dir="ltr">
+            </div>
+            
+            <div class="form-group">
+                <label>وشەی نهێنی</label>
+                <input type="password" id="password" required placeholder="••••••••" dir="ltr">
+            </div>
+            
+            <button type="submit" class="action-btn" id="loginBtn">چوونەژوورەوە</button>
+        </form>
+    </div>
+
+    <!-- پەیوەستکردنی فایلە جاڤاسکریپتەکە بێ گۆڕانکاری -->
+    <script type="module" src="js/login.js"></script>
+</body>
+</html>
