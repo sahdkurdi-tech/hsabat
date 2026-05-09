@@ -188,7 +188,7 @@ window.submitNewDonationType = async function() {
 
 window.deleteDonationType = function() {
     const id = document.getElementById('donationTypeValue').value;
-    if (!id) { customAlert("تکایە سەرەتا جۆرێک دیاری بکە بۆ ئەوەی بیسڕیتەوە!", "warning"); return; }
+    if (!id) { customAlert("تکایە سەرەتا جۆرێک لە دوگمەکان دیاری بکە بۆ ئەوەی بیسڕیتەوە!", "warning"); return; }
     customConfirm("ئایا دڵنیایت لە سڕینەوەی ئەم جۆرە؟", async () => {
         try {
             await deleteDoc(doc(db, "donation_types", id));
@@ -238,7 +238,7 @@ window.submitNewFund = async function() {
 
 window.deleteFund = function() {
     const id = document.getElementById('projectValue').value;
-    if (!id) { customAlert("تکایە سەرەتا پڕۆژەیەک دیاری بکە بۆ ئەوەی بیسڕیتەوە!", "warning"); return; }
+    if (!id) { customAlert("تکایە سەرەتا پڕۆژەیەک لە دوگمەکان دیاری بکە بۆ ئەوەی بیسڕیتەوە!", "warning"); return; }
     if (id === 'general') { customAlert("سندووقی گشتی ناسڕێتەوە!", "error"); return; }
     
     customConfirm("دڵنیایت لە سڕینەوەی ئەم سندووقە؟", async () => {
@@ -296,7 +296,7 @@ window.submitNewChannel = async function() {
 
 window.deleteChannel = function() {
     const id = document.getElementById('sourceValue').value;
-    if (!id) { customAlert("تکایە سەرەتا ناوێک دیاری بکە بۆ ئەوەی بیسڕیتەوە!", "warning"); return; }
+    if (!id) { customAlert("تکایە سەرەتا ناوێک لە دوگمەکان دیاری بکە بۆ ئەوەی بیسڕیتەوە!", "warning"); return; }
     customConfirm("ئایا دڵنیایت لە سڕینەوەی ئەم ناوە؟", async () => {
         try {
             await deleteDoc(doc(db, "channels", id));
@@ -305,6 +305,66 @@ window.deleteChannel = function() {
         } catch(e) { console.error(e); customAlert("هەڵەیەک لە سڕینەوەدا ڕوویدا.", "error"); }
     });
 };
+
+/* --- بەشی تایبەت بە ناوی مرۆڤدۆست بە هەمان ستایلی خانەکانی تر --- */
+
+window.loadSavedDonors = async function() {
+    const container = document.getElementById('donorNameContainer');
+    container.innerHTML = '';
+    document.getElementById('donorNameValue').value = '';
+    document.getElementById('donorNameTextValue').value = '';
+    try {
+        const snap = await getDocs(collection(db, "saved_donors"));
+        snap.forEach(docSnap => {
+            const name = docSnap.data().name;
+            createRadioItem('donorNameContainer', 'donorNameValue', 'donorNameTextValue', docSnap.id, name);
+        });
+    } catch(e) { console.error(e); }
+};
+
+window.addSavedDonor = function() {
+    document.getElementById('newSavedDonorInput').value = '';
+    document.getElementById('addSavedDonorModal').style.display = 'block';
+    setTimeout(() => document.getElementById('newSavedDonorInput').focus(), 100);
+};
+
+window.submitNewSavedDonor = async function() {
+    const name = document.getElementById('newSavedDonorInput').value.trim();
+    if (!name) return;
+    closeModal('addSavedDonorModal');
+    try {
+        await addDoc(collection(db, "saved_donors"), { name: name });
+        customAlert("ناوی مرۆڤدۆست بە سەرکەوتوویی زیادکرا!", "success");
+        window.loadSavedDonors(); 
+    } catch(e) {
+        customAlert("هەڵەیەک ڕوویدا لە زیادکردندا!", "error");
+    }
+};
+
+window.deleteSavedDonor = async function() {
+    const docId = document.getElementById('donorNameValue').value;
+    const inputName = document.getElementById('donorNameTextValue').value;
+    
+    if (!docId) {
+        customAlert("تکایە سەرەتا لە ناوەکان (دوگمەکان) ناوێک دیاری بکە (با ڕەنگی شین بێت) بۆ سڕینەوە!", "warning");
+        return;
+    }
+
+    customConfirm(`ئایا دڵنیایت لە سڕینەوەی (${inputName}) لە لیستەکە؟`, async () => {
+        try {
+            await deleteDoc(doc(db, "saved_donors", docId));
+            document.getElementById('donorNameValue').value = ''; 
+            document.getElementById('donorNameTextValue').value = '';
+            customAlert("ناوەکە لە لیستەکە سڕایەوە!", "success");
+            window.loadSavedDonors(); 
+        } catch(e) {
+            console.error(e);
+            customAlert("هەڵەیەک ڕوویدا لە سڕینەوەدا!", "error");
+        }
+    });
+};
+
+/* ---------------------------------------------------- */
 
 window.openGeneralHistory = function() {
     document.getElementById('generalHistoryModal').style.display = 'block';
@@ -455,12 +515,9 @@ window.loadDonorBalances = function() {
     if(balancesUnsub) balancesUnsub();
     balancesUnsub = onSnapshot(collection(db, "donor_balances"), (snap) => {
         const tableBody = document.querySelector('#donorBalancesTable tbody');
-        const datalist = document.getElementById('vipDonors'); 
-        tableBody.innerHTML = ''; datalist.innerHTML = '';
+        tableBody.innerHTML = ''; 
         snap.forEach(doc => {
             const data = doc.data();
-            const option = document.createElement('option');
-            option.value = data.name; datalist.appendChild(option);
 
             if (data.totalDonated_USD > 0 || data.spent_USD > 0) {
                 tableBody.innerHTML += `<tr><td><strong>${data.name}</strong></td><td>دۆلار ($)</td><td dir="ltr" style="color: #27ae60;">+${(data.totalDonated_USD||0).toFixed(2)}</td><td dir="ltr" style="color: #c0392b;">-${(data.spent_USD||0).toFixed(2)}</td><td dir="ltr" style="font-weight: bold;">${(data.remaining_USD||0).toFixed(2)}</td></tr>`;
@@ -510,6 +567,7 @@ onAuthStateChanged(auth, (user) => {
         loadProjects();
         loadChannels();
         window.loadDonorBalances(); 
+        window.loadSavedDonors(); 
     } else {
         window.location.href = "login.html";
     }
@@ -518,7 +576,7 @@ onAuthStateChanged(auth, (user) => {
 document.getElementById('donationForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const donorName = document.getElementById('donorName').value;
+    const donorName = document.getElementById('donorNameTextValue').value;
     const amount = parseFloat(document.getElementById('amount').value);
     
     const donationTypeId = document.getElementById('donationTypeValue').value;
@@ -530,8 +588,8 @@ document.getElementById('donationForm').addEventListener('submit', async (e) => 
     const projectFund = document.getElementById('projectValue').value;
     const projectNameForReceipt = document.getElementById('projectNameValue').value;
 
-    if (!donationTypeId || !currency || !sourceId || !projectFund) {
-        customAlert("تکایە دڵنیابە لەوەی 'جۆری پارەکە'، 'جۆری دراو'، 'بەدەستی کێ؟' وە 'بۆ کام پڕۆژە'ت دیاری کردووە (کلیکیان لێ بکە تا شین دەبن).", "warning");
+    if (!donorName || !donationTypeId || !currency || !sourceId || !projectFund) {
+        customAlert("تکایە دڵنیابە لەوەی 'ناوی مرۆڤدۆست'، 'جۆری پارەکە'، 'جۆری دراو'، 'بەدەستی کێ؟' وە 'بۆ کام پڕۆژە'ت دیاری کردووە (کلیکیان لێ بکە تا شین دەبن).", "warning");
         return;
     }
 
@@ -562,6 +620,14 @@ document.getElementById('donationForm').addEventListener('submit', async (e) => 
         await generatePDFReceipt(donorName, amount, currency, donationTypeText, projectNameForReceipt, docRef.id);
         
         document.getElementById('donationForm').reset();
+        
+        document.querySelectorAll('.radio-item').forEach(el => el.classList.remove('active'));
+        document.getElementById('donorNameValue').value = '';
+        document.getElementById('donorNameTextValue').value = '';
+        document.getElementById('donationTypeValue').value = '';
+        document.getElementById('currencyValue').value = '';
+        document.getElementById('sourceValue').value = '';
+        document.getElementById('projectValue').value = '';
 
     } catch (error) { console.error(error); customAlert("کێشەیەک هەیە لە تۆمارکردندا!", "error"); }
 });
@@ -575,7 +641,6 @@ async function generatePDFReceipt(name, amount, currency, donationType, project,
     document.getElementById('recProject').innerText = project;
     document.getElementById('recDate').innerText = new Date().toLocaleDateString('ku-IQ');
 
-    // ئەم دوو دێڕە خشتەکە دەشارێتەوە کاتێک پارەی نوێ وەردەگریت
     document.getElementById('recSubtitle').innerText = "وەسڵی وەرگرتنی پارە";
     document.getElementById('expenseSectionContainer').style.display = 'none';
 
@@ -603,7 +668,6 @@ async function generatePDFReceipt(name, amount, currency, donationType, project,
 window.downloadReceiptPDF = async function(name, amount, currency, donationType, project, receiptId, expensesJSON) {
     const template = document.getElementById('receiptTemplate');
     
-    // پڕکردنەوەی زانیارییە سەرەکییەکان
     document.getElementById('recId').innerText = receiptId.substring(0, 8).toUpperCase(); 
     document.getElementById('recName').innerText = name;
     document.getElementById('recAmount').innerText = `${amount} ${currency}`;
@@ -611,7 +675,6 @@ window.downloadReceiptPDF = async function(name, amount, currency, donationType,
     document.getElementById('recProject').innerText = project || 'سندووقی گشتی';
     document.getElementById('recDate').innerText = new Date().toLocaleDateString('ku-IQ');
 
-    // پڕکردنەوەی خشتەی خەرجییەکان
     const tbody = document.getElementById('recExpensesBody');
     if (tbody) {
         tbody.innerHTML = '';
@@ -632,7 +695,6 @@ window.downloadReceiptPDF = async function(name, amount, currency, donationType,
         }
     }
 
-    // ئەم دوو دێڕە خشتەکە پیشان دەداتەوە کاتێک ڕاپۆرتەکە لە مێژووەوە داونلۆد دەکەیت
     document.getElementById('recSubtitle').innerText = "وەسڵی فەرمی و ڕاپۆرتی خەرجییەکان";
     document.getElementById('expenseSectionContainer').style.display = 'block';
 
@@ -643,21 +705,17 @@ window.downloadReceiptPDF = async function(name, amount, currency, donationType,
     customAlert("چاوەڕوان بە... خەریکی ئامادەکردنی فایلی PDF ەکەین ⏳", "info");
 
     try {
-        // گۆڕینی بۆ وێنە بە کوالێتی بەرز
         const canvas = await html2canvas(template, { scale: 2 });
         const imgData = canvas.toDataURL('image/png');
         
-        // خستنە ناو PDF
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4'); 
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
         pdf.addImage(imgData, 'PNG', 0, 10, pdfWidth, pdfHeight);
         
-        // لێرەدا ڕاستەوخۆ داونلۆدی دەکەین بەناوی مرۆڤدۆستەکەوە
         pdf.save(`Receipt_${name}_${receiptId.substring(0, 5)}.pdf`);
         
-        // ئاگادارکردنەوەی سەرکەوتن
         closeModal('customAlertModal');
         customAlert("فایلەکە بە سەرکەوتوویی داونلۆد بوو! ئێستا دەتوانیت خۆت بینێریت بۆ بەڕێزیان.", "success");
 
@@ -673,7 +731,6 @@ window.downloadReceiptPDF = async function(name, amount, currency, donationType,
 window.printReceiptPDF = async function(name, amount, currency, donationType, project, receiptId, expensesJSON) {
     const template = document.getElementById('receiptTemplate');
     
-    // پڕکردنەوەی زانیارییە سەرەکییەکان
     document.getElementById('recId').innerText = receiptId.substring(0, 8).toUpperCase(); 
     document.getElementById('recName').innerText = name;
     document.getElementById('recAmount').innerText = `${amount} ${currency}`;
@@ -681,7 +738,6 @@ window.printReceiptPDF = async function(name, amount, currency, donationType, pr
     document.getElementById('recProject').innerText = project || 'سندووقی گشتی';
     document.getElementById('recDate').innerText = new Date().toLocaleDateString('ku-IQ');
 
-    // پڕکردنەوەی خشتەی خەرجییەکان
     const tbody = document.getElementById('recExpensesBody');
     if (tbody) {
         tbody.innerHTML = '';
@@ -702,7 +758,6 @@ window.printReceiptPDF = async function(name, amount, currency, donationType, pr
         }
     }
 
-// ئەم دوو دێڕە خشتەکە پیشان دەداتەوە کاتێک ڕاپۆرتەکە لە مێژووەوە چاپ دەکەیت
     document.getElementById('recSubtitle').innerText = "وەسڵی فەرمی و ڕاپۆرتی خەرجییەکان";
     document.getElementById('expenseSectionContainer').style.display = 'block';
 
@@ -713,18 +768,15 @@ window.printReceiptPDF = async function(name, amount, currency, donationType, pr
     customAlert("چاوەڕوان بە... خەریکی ئامادەکردنی فایلی PDF ەکەین بۆ چاپکردن ⏳", "info");
 
     try {
-        // گۆڕینی بۆ وێنە بە کوالێتی بەرز
         const canvas = await html2canvas(template, { scale: 2 });
         const imgData = canvas.toDataURL('image/png');
         
-        // خستنە ناو PDF
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4'); 
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
         pdf.addImage(imgData, 'PNG', 0, 10, pdfWidth, pdfHeight);
         
-        // جیاوازییەکە لێرەدایە: فەرمانی چاپکردن دەدەین و لە تابی نوێ دەیکەینەوە
         pdf.autoPrint();
         const blobURL = pdf.output('bloburl');
         window.open(blobURL, '_blank');
