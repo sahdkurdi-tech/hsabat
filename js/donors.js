@@ -1,6 +1,7 @@
-import { db, storage } from './firebase-config.js';
-import { collection, addDoc, getDocs, doc, setDoc, updateDoc, increment, serverTimestamp, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { db, storage, auth } from './firebase-config.js';
+import { collection, addDoc, getDocs, doc, setDoc, updateDoc, deleteDoc, increment, serverTimestamp, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
 window.customAlert = function(message, type = "success") {
     const titleEl = document.getElementById('alertTitle');
@@ -502,13 +503,17 @@ window.loadDonationsHistory = function() {
     });
 }
 
-window.onload = () => {
-    loadCurrencies(); 
-    loadDonationTypes();
-    loadProjects();
-    loadChannels();
-    window.loadDonorBalances(); 
-};
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        loadCurrencies(); 
+        loadDonationTypes();
+        loadProjects();
+        loadChannels();
+        window.loadDonorBalances(); 
+    } else {
+        window.location.href = "login.html";
+    }
+});
 
 document.getElementById('donationForm').addEventListener('submit', async (e) => {
     e.preventDefault();

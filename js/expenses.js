@@ -1,5 +1,6 @@
-import { db } from './firebase-config.js';
+import { db, auth } from './firebase-config.js';
 import { collection, addDoc, getDocs, doc, setDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy, increment, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
 window.customAlert = function(message, type = "success") {
     const titleEl = document.getElementById('alertTitle');
@@ -318,8 +319,12 @@ window.openExpenseHistory = async function() {
     });
 };
 
-window.onload = () => {
-    loadReasons();
-    loadDonors();
-    document.getElementById('expenseDate').valueAsDate = new Date();
-};
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        loadReasons();
+        loadDonors();
+        document.getElementById('expenseDate').valueAsDate = new Date();
+    } else {
+        window.location.href = "login.html";
+    }
+});

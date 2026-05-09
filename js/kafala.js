@@ -1,5 +1,6 @@
-import { db } from './firebase-config.js';
+import { db, auth } from './firebase-config.js';
 import { collection, addDoc, getDocs, doc, setDoc, updateDoc, increment, serverTimestamp, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
 window.customAlert = function(message, type = "success") {
     const titleEl = document.getElementById('alertTitle');
@@ -217,7 +218,11 @@ window.loadKafalaContracts = function() {
     });
 };
 
-window.onload = () => {
-    loadDonors();
-    window.loadKafalaContracts();
-};
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        loadDonors();
+        window.loadKafalaContracts();
+    } else {
+        window.location.href = "login.html";
+    }
+});

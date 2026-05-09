@@ -1,6 +1,7 @@
-import { db, storage } from './firebase-config.js';
+import { db, storage, auth } from './firebase-config.js';
 import { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy, where, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
 let currentPersonActiveAdvances = [];
 
@@ -263,7 +264,19 @@ window.loadSettlementHistory = function() {
     });
 };
 
-window.onload = () => { loadCommittees(); loadSources(); loadPurposes(); window.loadAdvances(); window.loadSettlementHistory(); };
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        // ئەگەر دڵنیا بووین کارمەندەکە لۆگینە، ئینجا داتاکان لۆد دەکەین
+        loadCommittees(); 
+        loadSources(); 
+        loadPurposes(); 
+        window.loadAdvances(); 
+        window.loadSettlementHistory();
+    } else {
+        // ئەگەر لۆگین نەبوو، با بیگەڕێنێتەوە بۆ پەیجی چوونەژوورەوە
+        window.location.href = "login.html";
+    }
+});
 
 window.checkCurrencyMatch = function() {
     const advanceSelect = document.getElementById('activeAdvances');

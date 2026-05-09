@@ -1,5 +1,6 @@
-import { db } from './firebase-config.js';
+import { db, auth } from './firebase-config.js';
 import { collection, addDoc, getDocs, doc, setDoc, updateDoc, increment, serverTimestamp, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
 let loadedProjects = {}; 
 let projectsUnsub = null;
@@ -97,7 +98,14 @@ window.loadProjectDonors = function() {
     }, (error) => console.error(error));
 };
 
-window.onload = () => { window.loadProjects(); window.loadProjectDonors(); };
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        window.loadProjects(); 
+        window.loadProjectDonors();
+    } else {
+        window.location.href = "login.html";
+    }
+});
 
 window.checkProjectCurrency = function() {
     const projectId = document.getElementById('spendProjectId').value;
